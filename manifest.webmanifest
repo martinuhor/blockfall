@@ -1,0 +1,12 @@
+{
+  "name": "Blockfall",
+  "short_name": "Blockfall",
+  "description": "A free falling-tiles game. One daily run, the same tile order for everyone.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#140e18",
+  "theme_color": "#140e18",
+  "lang": "en"
+}

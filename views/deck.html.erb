@@ -1,0 +1,186 @@
+<div class="mx-auto flex h-dvh max-w-5xl flex-col px-5 py-4 sm:px-8">
+  <header class="flex items-center justify-between gap-4 border-b border-white/10 pb-3">
+    <div>
+      <p class="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">Blockfall</p>
+      <p class="text-sm text-zinc-500">Investor brief · pre-MVP</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="./" class="rounded-full border border-white/15 px-3 py-2 text-sm text-zinc-300 hover:text-white">Play</a>
+      <button type="button" id="edit" class="rounded-full bg-white px-3 py-2 text-sm font-semibold text-zinc-950">Edit brief</button>
+    </div>
+  </header>
+
+  <form id="brief" hidden class="mt-4 min-h-0 flex-1 space-y-3 overflow-auto pb-4">
+    <label class="block text-sm text-zinc-400">PRD summary
+      <textarea id="prd" rows="5" class="mt-1 w-full rounded-xl border border-white/10 bg-zinc-900 p-3 text-sm text-zinc-100">Blockfall is a free falling-tiles game for players in Nigeria. One ranked run each Lagos day uses the same tile order for everyone, so the result is skill. Practice is unlimited and unranked. Five original tiles — Pebble, Pair, Bar, Elbow, and Arch — fall in a narrowing vessel. Filled bands clear and can chain. Players can put their own emojis on the blocks. A receipt on the phone can be replayed. Prizes, later, would be sponsor-funded airtime, not a token and not an entry fee.</textarea>
+    </label>
+    <label class="block text-sm text-zinc-400">Pre-MVP status
+      <textarea id="status" rows="4" class="mt-1 w-full rounded-xl border border-white/10 bg-zinc-900 p-3 text-sm text-zinc-100">Playable web app: splash, practice, Lagos daily seed, stop/resume, emoji blocks, and a local receipt. Rewarded ads are an opt-in local stand-in, capped at one continue and one double per Lagos day. No accounts, no payouts, no store listing. Replay checks the score before any ad bonus.</textarea>
+    </label>
+    <label class="block text-sm text-zinc-400">Market hypotheses
+      <textarea id="hypotheses" rows="4" class="mt-1 w-full rounded-xl border border-white/10 bg-zinc-900 p-3 text-sm text-zinc-100">Nigerian mobile players will return for a short free daily if the tile order is shared and the rules are original. A home-screen web app can reach Android players before a store binary. Sponsors will fund small airtime prizes if the audience is real and the ad load stays opt-in. Players want the blocks to be theirs.</textarea>
+    </label>
+    <label class="block text-sm text-zinc-400">Preset
+      <select id="preset" class="mt-1 w-full rounded-xl border border-white/10 bg-zinc-900 p-3 text-sm">
+        <option selected>Consumer</option>
+        <option>Marketplace</option>
+        <option>B2B</option>
+        <option>Entertainment</option>
+      </select>
+    </label>
+    <button type="button" id="apply" class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-zinc-950">Update slides</button>
+  </form>
+
+  <main id="stage" class="flex min-h-0 flex-1 flex-col justify-center py-6">
+    <p id="kicker" class="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200/80"></p>
+    <h1 id="slide-title" class="mt-3 max-w-3xl font-serif text-4xl leading-tight text-white sm:text-5xl"></h1>
+    <p id="slide-body" class="mt-5 max-w-2xl whitespace-pre-wrap text-base leading-relaxed text-zinc-300 sm:text-lg"></p>
+    <button type="button" id="copy" class="mt-6 w-fit rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-200">Copy prompt</button>
+  </main>
+
+  <footer class="flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+    <button type="button" id="prev" class="min-h-[44px] rounded-full border border-white/15 px-4 text-sm">Prev</button>
+    <div id="dots" class="flex flex-wrap items-center justify-center gap-2"></div>
+    <button type="button" id="next" class="min-h-[44px] rounded-full border border-white/15 px-4 text-sm">Next</button>
+  </footer>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const LENS = {
+    Consumer: "consumer mobile",
+    Marketplace: "a two-sided marketplace",
+    B2B: "a business buyer",
+    Entertainment: "an entertainment brand",
+  };
+
+  let deck = [];
+  let index = 0;
+
+  function field(id) {
+    return $(id).value.trim();
+  }
+
+  function build(brief) {
+    const lens = LENS[brief.preset] || LENS.Consumer;
+    const rows = [
+      ["Vision", "One fair run, every day",
+        "Blockfall is a free daily skill game for Nigeria. Everyone on the same Lagos day gets the same tiles, so the ranked run is comparable. Practice does not count.\n\n" + brief.prd + "\n\nRead this as " + lens + "."],
+      ["Problem", "Clones, stakes, and vague prizes",
+        "Players already know falling tiles. Most phone versions are clones, ask for an entry, or never explain who pays the prize. A daily score is noise if the tile order changes from phone to phone.\n\nAirtime rewards are a regulated promotion, not a switch in the settings."],
+      ["Solution", "Same tiles, original vessel",
+        "One ranked run per Lagos day. Five tiles — Pebble, Pair, Bar, Elbow, and Arch — fall through a narrowing vessel. A full band clears, and tiles above can chain. The phone keeps a receipt a server can replay. Players set the emoji on each shape."],
+      ["Product", "What you can open today",
+        "Splash, then today's run or practice. Stop freezes the vessel. After a run, an opt-in sponsor card can double that run's points or continue once. Each reward is capped per Lagos day and shared, so restarting practice does not farm it. The card is a stand-in for a rewarded SDK. No ad covers the vessel during play."],
+      ["Market", "Nigeria, on a phone, for free",
+        "The first audience is Nigerian mobile players, Android-first, as a home-screen web app.\n\n" + brief.hypotheses],
+      ["Competition", "Not a clone and not a book",
+        "Falling-tile clones compete on memory. Airtime quizzes compete on prizes. Betting apps compete on stakes. Blockfall competes on a fair daily and rules of its own. It does not take an entry fee and it does not sell a token."],
+      ["Business model", "Sponsors pay, players do not",
+        "The game is free. A publisher earns from capped, opt-in rewarded ads. Later, a sponsor can fund airtime for points. That payout needs a permit before anyone is paid. v1 has no token, no entry fee, and no player-funded pool."],
+      ["Traction", "Pre-MVP, and unpaid",
+        brief.status + "\n\nThe replay checks the score before a double. This build does not pay airtime or cash."],
+      ["Go-to-market", "Home screen, then a store",
+        "Ship the web app and ask players to keep it on the home screen. Run the Lagos daily in public. A store listing waits until the loop sticks. A prize week waits on a permit review. No paid acquisition in the pre-MVP plan."],
+      ["Team & ask", "A sponsor pilot, not a token round",
+        "Founder-built, pre-team. The ask is an introduction to a Nigerian sponsor and to counsel on an NLRC permit before any prize. This deck is not legal advice. Nothing in the product pays a prize today."],
+    ];
+    return rows.map(([name, title, body], i) => ({
+      name,
+      title,
+      body,
+      prompt: [
+        "Slide " + (i + 1) + " of 10 — " + name,
+        "Company: Blockfall",
+        "Preset: " + brief.preset + " (" + lens + ")",
+        "Title: " + title,
+        "",
+        body,
+        "",
+        "Write this as one investor slide. Nigeria, free daily skill run, sponsor-funded airtime later, no token in v1, opt-in rewarded ads only. Do not claim a prize is already paid. Do not give legal advice. Mention that an NLRC permit comes before any prize.",
+      ].join("\n"),
+    }));
+  }
+
+  function render() {
+    const slide = deck[index];
+    $("kicker").textContent = String(index + 1).padStart(2, "0") + "  " + slide.name;
+    $("slide-title").textContent = slide.title;
+    $("slide-body").textContent = slide.body;
+    $("prev").disabled = index === 0;
+    $("next").disabled = index === deck.length - 1;
+    $("dots").querySelectorAll("button").forEach((dot, i) => {
+      dot.setAttribute("aria-current", i === index ? "true" : "false");
+      dot.className = i === index
+        ? "h-2.5 w-2.5 rounded-full bg-white"
+        : "h-2.5 w-2.5 rounded-full bg-white/25";
+    });
+  }
+
+  function go(next) {
+    index = Math.max(0, Math.min(deck.length - 1, next));
+    render();
+  }
+
+  function rebuild(reset) {
+    deck = build({
+      prd: field("prd"),
+      status: field("status"),
+      hypotheses: field("hypotheses"),
+      preset: $("preset").value,
+    });
+    if (reset) index = 0;
+    if (index > deck.length - 1) index = 0;
+    render();
+  }
+
+  function dots() {
+    $("dots").replaceChildren();
+    for (let i = 0; i < 10; i++) {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.setAttribute("aria-label", "Slide " + (i + 1));
+      dot.addEventListener("click", () => go(i));
+      $("dots").appendChild(dot);
+    }
+  }
+
+  $("prev").addEventListener("click", () => go(index - 1));
+  $("next").addEventListener("click", () => go(index + 1));
+  $("edit").addEventListener("click", () => {
+    const showForm = $("brief").hidden;
+    $("brief").hidden = !showForm;
+    $("stage").hidden = showForm;
+    $("edit").textContent = showForm ? "Close" : "Edit brief";
+  });
+  $("apply").addEventListener("click", () => {
+    $("brief").hidden = true;
+    $("stage").hidden = false;
+    $("edit").textContent = "Edit brief";
+    rebuild(true);
+  });
+  $("copy").addEventListener("click", async () => {
+    const text = deck[index].prompt;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (error) {
+      const area = document.createElement("textarea");
+      area.value = text;
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    }
+    $("copy").textContent = "Copied";
+    setTimeout(() => { $("copy").textContent = "Copy prompt"; }, 900);
+  });
+  document.addEventListener("keydown", (event) => {
+    const tag = document.activeElement && document.activeElement.tagName;
+    if (tag === "TEXTAREA" || tag === "INPUT" || tag === "SELECT") return;
+    if (event.key === "ArrowRight") go(index + 1);
+    if (event.key === "ArrowLeft") go(index - 1);
+  });
+
+  dots();
+  rebuild(true);
+</script>

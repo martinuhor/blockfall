@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#140e18" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Blockfall" />
+    <title>Blockfall</title>
+    <meta
+      name="description"
+      content="Blockfall is a falling-tiles game. One free daily run, the same tile order for everyone."
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="css/game.css" />
+  </head>
+  <body>
+    <main id="app">
+      <header id="top">
+        <div>
+          <p class="eyebrow" id="date">Lagos</p>
+          <h1>Blockfall</h1>
+        </div>
+        <div class="header-actions">
+          <p class="chip" id="mode">Ready</p>
+          <button type="button" class="stop" id="stop" hidden>Stop</button>
+        </div>
+      </header>
+
+      <div class="soundbar">
+        <p id="now-playing" class="now-playing" hidden></p>
+        <button type="button" class="mute" id="mute">Mute</button>
+      </div>
+
+      <section class="stats" id="stats" aria-label="Score" hidden>
+        <p class="stat"><span>Points</span><b id="score">0</b></p>
+        <p class="stat"><span>Bands</span><b id="bands">0</b></p>
+        <p class="stat"><span>Best</span><b id="best">—</b></p>
+      </section>
+
+      <p id="status" class="status" aria-live="polite" hidden>Fill a band across the vessel.</p>
+
+      <section id="stage" hidden>
+        <canvas id="board" width="360" height="520">The vessel, where tiles fall and bands clear.</canvas>
+      </section>
+
+      <section id="splash">
+        <div class="hero">
+          <p class="eyebrow" id="splash-date">Lagos</p>
+          <h1 class="wordmark">Blockfall</h1>
+          <canvas id="splash-token" width="168" height="168" aria-hidden="true">A spinning token.</canvas>
+          <p class="tag">Daily skill. Same tiles for everyone.</p>
+        </div>
+        <div class="dock">
+          <button type="button" class="primary" id="open-play">Play</button>
+          <p class="sponsor" id="splash-sponsor"></p>
+        </div>
+      </section>
+
+      <section id="start-sheet" hidden>
+        <div class="front-copy">
+          <p class="eyebrow">Free daily run</p>
+          <h2>Same tiles for everyone.</h2>
+          <p class="lead">One ranked run today. Practice is open. Your emojis are the blocks.</p>
+          <ul class="slots">
+            <li><label>Pebble<input data-emoji="0" maxlength="16" autocomplete="off" enterkeyhint="done" aria-label="Pebble emoji"></label></li>
+            <li><label>Pair<input data-emoji="1" maxlength="16" autocomplete="off" enterkeyhint="done" aria-label="Pair emoji"></label></li>
+            <li><label>Bar<input data-emoji="2" maxlength="16" autocomplete="off" enterkeyhint="done" aria-label="Bar emoji"></label></li>
+            <li><label>Elbow<input data-emoji="3" maxlength="16" autocomplete="off" enterkeyhint="done" aria-label="Elbow emoji"></label></li>
+            <li><label>Arch<input data-emoji="4" maxlength="16" autocomplete="off" enterkeyhint="done" aria-label="Arch emoji"></label></li>
+          </ul>
+          <ul class="rules">
+            <li>The vessel narrows. A tile that does not fit the neck rests on the ledge.</li>
+            <li>Fill a band and it bursts. Tiles above can chain.</li>
+            <li>Stop freezes the run. Arrows move, up turns, space drops.</li>
+          </ul>
+          <p class="sponsor" id="sponsor-line"></p>
+          <p class="fine">A receipt stays on this phone. This build does not pay airtime or cash.</p>
+        </div>
+        <div class="actions">
+          <button type="button" class="primary" id="play-daily">Start today's run</button>
+          <button type="button" class="ghost" id="play-practice">Practice</button>
+        </div>
+      </section>
+
+      <section id="controls" aria-label="Controls" hidden>
+        <button type="button" class="pad" data-action="L">Left</button>
+        <button type="button" class="pad" data-action="C">Turn</button>
+        <button type="button" class="pad" data-action="R">Right</button>
+        <button type="button" class="pad drop" data-action="H">Drop</button>
+      </section>
+
+      <section id="pause" class="panel" hidden>
+        <p class="eyebrow">Stopped</p>
+        <h2>Paused</h2>
+        <p class="lead">The vessel is frozen. Tiles will not fall.</p>
+        <div class="actions">
+          <button type="button" class="primary" id="resume">Resume</button>
+          <button type="button" class="ghost" id="end-run">End run</button>
+        </div>
+      </section>
+
+      <section id="result" hidden>
+        <div class="result-body">
+          <div class="result-head">
+            <p class="eyebrow" id="result-kicker">Run</p>
+            <h2 id="result-title">Run over</h2>
+          </div>
+          <p class="scoreline"><b id="result-score">0</b> <span>points</span></p>
+          <dl class="receipt">
+            <div><dt>Bands</dt><dd id="result-bands">0</dd></div>
+            <div><dt>Receipt</dt><dd id="result-hash">—</dd></div>
+            <div><dt>Replay</dt><dd id="result-meta">—</dd></div>
+          </dl>
+          <p class="fine" id="result-note"></p>
+        </div>
+        <div class="actions">
+          <button type="button" class="reward" id="watch-continue" hidden>Watch to continue</button>
+          <button type="button" class="reward" id="watch-double">Watch to double this run's points</button>
+          <button type="button" class="primary" id="result-again">Start</button>
+          <button type="button" class="ghost" id="result-other">Today's run</button>
+          <button type="button" class="ghost" id="result-home">Home</button>
+        </div>
+      </section>
+    </main>
+
+    <section id="ad" hidden>
+      <p class="eyebrow">Sponsor break</p>
+      <h2 id="ad-sponsor">Sample sponsor</h2>
+      <p class="lead" id="ad-message"></p>
+      <p class="ad-reward" id="ad-reward"></p>
+      <p id="ad-count" aria-live="polite">3</p>
+      <p class="fine">Local stand-in. Nothing is being auctioned.</p>
+      <div class="actions">
+        <button type="button" class="ghost" id="ad-cancel">Cancel</button>
+      </div>
+    </section>
+
+    <audio id="ost" preload="none"></audio>
+    <script type="module" src="js/game.js"></script>
+  </body>
+</html>
