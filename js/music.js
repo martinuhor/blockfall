@@ -20,7 +20,7 @@ export const PLAYLIST = [
   { src: "audio/13-paid-her-car-note.mp3", title: "Paid Her Car Note", feat: ["Sativagotbandz", "CakemanBara"] },
   { src: "audio/14-pressure.m4a", title: "Pressure", feat: ["DavieFvr", "Sativagotbandz"] },
   { src: "audio/15-ragebait.m4a", title: "RAGEBAIT", feat: [] },
-  { src: "audio/16-satisfiying.m4a", title: "SATISFIYING", feat: ["Kliensman", "Meko"] },
+  { src: "audio/16-satisfying.m4a", title: "SATISFYING", feat: ["Kliensman", "Meko"] },
   { src: "audio/17-shehu-shagari-way.m4a", title: "SHEHU SHAGARI WAY", feat: ["DetailMadeIt"] },
   { src: "audio/18-abuja.m4a", title: "Abuja", feat: ["ODUMODUBLVCK"] },
   { src: "audio/19-the-tallest-poppy.m4a", title: "The Tallest Poppy", feat: ["DavieFvr", "DDN$", "PsychoYP"] },
