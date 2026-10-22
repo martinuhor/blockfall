@@ -15,13 +15,47 @@ body {
   margin: 0;
   min-height: 100dvh;
   color: var(--ink);
-  background: var(--bg);
+  background: #050505;
 }
 
+.canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #050505;
+}
+
+.canvas video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.8s linear;
+}
+
+.canvas video.on { opacity: 1; }
+
 main {
+  position: relative;
+  z-index: 1;
   max-width: 720px;
-  margin: 0 auto;
-  padding: max(16px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+  margin: min(42vh, 520px) auto 0;
+  padding: 18px 16px max(20px, env(safe-area-inset-bottom));
+  border-radius: 18px 18px 0 0;
+  background:
+    linear-gradient(to bottom, rgba(18, 14, 20, 0.35), rgba(18, 14, 20, 0.94) 42px, #120e14 96px);
+}
+
+h1,
+#artist,
+header a,
+header p,
+.seek span {
+  text-shadow: 0 1px 2px #000, 0 0 12px rgba(0, 0, 0, 0.85);
 }
 
 header {

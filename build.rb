@@ -23,6 +23,11 @@ FileUtils.cp_r(File.join(root, "css"), File.join(dist, "css"))
 FileUtils.cp_r(File.join(root, "js"), File.join(dist, "js"))
 FileUtils.cp(File.join(root, "manifest.webmanifest"), File.join(dist, "manifest.webmanifest"))
 FileUtils.cp_r(File.join(root, "audio"), dist)
+video_dir = File.join(root, "video")
+FileUtils.mkdir_p(File.join(dist, "video"))
+Dir.glob(File.join(video_dir, "*.mp4")).each do |file|
+  FileUtils.cp(file, File.join(dist, "video", File.basename(file)))
+end
 
 title = "Blockfall — pitch"
 content = ERB.new(read_utf8(File.join(views, "deck.html.erb")), trim_mode: "-").result(binding)

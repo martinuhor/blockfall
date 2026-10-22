@@ -188,3 +188,26 @@ try {
 audio.volume = Number(volume.value) / 100;
 paintMute();
 cue(pos, false);
+
+const canvasClips = [...document.querySelectorAll(".canvas video")];
+let canvasShown = canvasClips.findIndex((clip) => clip.classList.contains("on"));
+if (canvasShown < 0) canvasShown = 0;
+
+function playCanvas() {
+  canvasClips.forEach((clip) => {
+    clip.muted = true;
+    const pending = clip.play();
+    if (pending) pending.catch(() => {});
+  });
+}
+
+if (canvasClips.length > 1) {
+  window.setInterval(() => {
+    canvasClips[canvasShown].classList.remove("on");
+    canvasShown = (canvasShown + 1) % canvasClips.length;
+    canvasClips[canvasShown].classList.add("on");
+  }, 7000);
+}
+
+playCanvas();
+document.addEventListener("pointerdown", playCanvas, { once: true });
