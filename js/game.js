@@ -9,7 +9,7 @@ import {
 } from "./engine.js";
 import { createRenderer, DEFAULT_EMOJIS } from "./draw.js";
 import { createAds } from "./ads.js";
-import { createMusic, trackLine } from "./music.js";
+import { createMusic, trackLine, ARTIST } from "./music.js";
 
 const TICK_MS = 50;
 const REPEAT_EVERY = 4;
@@ -113,7 +113,14 @@ const music = createMusic(document.querySelector("#ost"), (track) => {
     return;
   }
   els.nowPlaying.hidden = false;
-  els.nowPlaying.textContent = trackLine(track);
+  els.nowPlaying.replaceChildren();
+  const title = document.createElement("span");
+  title.className = "now-title";
+  title.textContent = trackLine(track);
+  const artist = document.createElement("span");
+  artist.className = "now-artist";
+  artist.textContent = ARTIST;
+  els.nowPlaying.append(title, artist);
 });
 
 function paintMute() {
@@ -209,9 +216,17 @@ function glyph(value, fallback) {
   return Array.from(text)[0] || fallback;
 }
 
+const RETIRED_EMOJIS = new Set(["🌈", "📐"]);
+
 function loadGlyphs() {
   const saved = readJson("blockfall.emojis");
-  glyphs = DEFAULT_EMOJIS.map((fallback, i) => glyph(saved && saved[i], fallback));
+  const stale = Array.isArray(saved) && saved.some((item) => RETIRED_EMOJIS.has(glyph(item, "")));
+  if (!Array.isArray(saved) || stale) {
+    glyphs = DEFAULT_EMOJIS.slice();
+    if (stale) saveGlyphs();
+  } else {
+    glyphs = DEFAULT_EMOJIS.map((fallback, i) => glyph(saved[i], fallback));
+  }
   renderer.setEmojis(glyphs);
 }
 

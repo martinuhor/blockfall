@@ -1,13 +1,13 @@
 import { COLS, ROWS, cellsFor, playable } from "./engine.js";
 
-export const DEFAULT_EMOJIS = ["🪨", "👀", "📏", "📐", "🌈"];
+export const DEFAULT_EMOJIS = ["😌", "👀", "⭐", "🧠", "🥶"];
 
 const CLAY = "#4A3028";
 const RIM = "#7A5344";
 const LEDGE = "#8D624F";
 const CAVITY = "#1A100E";
 const BG = "#140E18";
-const FRAMES = 12;
+const FRAMES = 16;
 const STRIP_DPR = 2;
 const EMOJI_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
 
@@ -16,7 +16,7 @@ const strips = new Map();
 function glossFrame(ctx, x, y, size, emoji, spin) {
   const turn = Math.cos(spin);
   const sign = turn < 0 ? -1 : 1;
-  const mag = 0.64 + 0.36 * Math.abs(turn);
+  const mag = 0.28 + 0.72 * Math.abs(turn);
   ctx.save();
   ctx.translate(x + size / 2 + Math.sin(spin) * size * 0.03, y + size / 2);
   ctx.scale(mag * sign, 1);
@@ -72,7 +72,7 @@ function blitToken(ctx, emoji, x, y, size, time, speed) {
   const cycle = 3400 / speed;
   const t = ((time % cycle) + cycle) % cycle;
   const frame = Math.floor((t / cycle) * FRAMES) % FRAMES;
-  const tumble = 0.92 + 0.08 * Math.cos(time * 0.00032 * speed);
+  const tumble = 0.55 + 0.45 * Math.cos(time * 0.00085 * speed + 1.2);
   ctx.save();
   ctx.translate(x + size / 2, y + size / 2);
   ctx.scale(1, tumble);

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#120e14" />
+    <title>Soundtrack — Blockfall</title>
+    <link rel="stylesheet" href="css/ost.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <a href="./">Blockfall</a>
+        <p>Soundtrack</p>
+      </header>
+      <h1 id="title">Soundtrack</h1>
+      <p id="artist">Silent Parker</p>
+      <div class="seek">
+        <span id="elapsed">0:00</span>
+        <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Seek" />
+        <span id="duration">0:00</span>
+      </div>
+      <div class="transport" aria-label="Playback">
+        <button type="button" id="prev">Previous</button>
+        <button type="button" id="play">Play</button>
+        <button type="button" id="pause">Pause</button>
+        <button type="button" id="stop">Stop</button>
+        <button type="button" id="next">Next</button>
+      </div>
+      <div class="mix">
+        <label>Volume <input id="volume" type="range" min="0" max="100" value="80" /></label>
+        <button type="button" id="mute">Mute</button>
+      </div>
+      <ol id="list" aria-label="Playlist"></ol>
+    </main>
+    <audio id="player" preload="metadata"></audio>
+    <script type="module" src="js/ost.js"></script>
+  </body>
+</html>
