@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#140e18" />
+    <title>Room — Blockfall</title>
+    <link rel="stylesheet" href="css/room.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <a href="./">Blockfall</a>
+        <h1>Room</h1>
+      </header>
+      <p id="mesh-note" class="mesh-note">Messages are local until a real bitchat client is plugged in.</p>
+      <div class="floor">
+        <canvas id="room-canvas" width="256" height="192" aria-label="Top-down room. Ada, Ngozi, and Chidi are people in this room.">A top-down room.</canvas>
+        <div id="tags"></div>
+      </div>
+      <p class="hint">Arrow keys walk. Chat starts when you stand next to someone. Ada, Ngozi, and Chidi are people in this room.</p>
+      <p id="status" class="status" aria-live="polite"></p>
+      <div class="pad" aria-label="Walk">
+        <button type="button" data-move="ArrowUp">Up</button>
+        <button type="button" data-move="ArrowLeft">Left</button>
+        <button type="button" data-move="ArrowDown">Down</button>
+        <button type="button" data-move="ArrowRight">Right</button>
+      </div>
+      <section id="chat" class="chat" hidden>
+        <div class="chat-head">
+          <h2 id="chat-name"></h2>
+          <p>Person in this room</p>
+          <p>Messages are local until a real bitchat client is plugged in.</p>
+        </div>
+        <ol id="log"></ol>
+        <div id="orders" class="orders" hidden>
+          <p class="order-note">Under 1.5 km from this room, Seyi walks it over. At 1.5 km or farther, it leaves by the door. Location is asked once, and only the near or far band is kept.</p>
+          <button type="button" data-item="Zobo">Zobo</button>
+          <button type="button" data-item="Suya">Suya</button>
+          <button type="button" data-item="Chin chin">Chin chin</button>
+        </div>
+        <form id="say-form">
+          <input id="say" maxlength="200" autocomplete="off" placeholder="Say something" aria-label="Message" />
+          <button type="submit">Send</button>
+        </form>
+      </section>
+    </main>
+    <script type="module" src="js/room.js"></script>
+  </body>
+</html>

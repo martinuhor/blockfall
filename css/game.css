@@ -159,7 +159,8 @@ h2 { font-size: 1.55rem; line-height: 1.05; }
   letter-spacing: 0.04em;
 }
 
-a.soundtrack {
+a.soundtrack,
+a.room-link {
   display: flex;
   align-items: center;
   justify-content: center;
