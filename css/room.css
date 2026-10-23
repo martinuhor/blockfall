@@ -32,7 +32,7 @@ body {
 }
 
 main {
-  width: min(100%, 480px);
+  width: min(100%, 640px);
   margin: 0 auto;
 }
 
@@ -79,18 +79,20 @@ header p,
 .floor {
   position: relative;
   overflow: visible;
-  border: 1px solid var(--line);
+  border: 3px solid #5c463c;
   border-radius: 16px;
-  background: #100c10;
+  background: #e7d3b0;
 }
 
 canvas {
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: 4 / 3;
+  background: #e7d3b0;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  border-radius: 16px;
+  border-radius: 13px;
 }
 
 .who {
@@ -109,7 +111,36 @@ canvas {
 }
 
 .who.you {
-  transform: translate(-50%, 0);
+  transform: translate(-50%, -108%);
+}
+
+.bubble {
+  position: absolute;
+  z-index: 3;
+  width: max-content;
+  max-width: 46%;
+  margin: 0;
+  transform: translate(-50%, calc(-100% - 36px));
+  padding: 5px 8px 6px;
+  border-radius: 10px;
+  background: #fff8ea;
+  color: #2a160c;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 2px 0 #2a160c;
+}
+
+.bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #fff8ea;
+  border-bottom: 0;
 }
 
 .who b {

@@ -4,6 +4,7 @@ import {
   MAP,
   approachTiles,
   counterExit,
+  isSolid,
   parseMap,
   pathTo,
   standsNextTo,
@@ -33,6 +34,14 @@ test("a runner can leave by the door and can walk to the player", () => {
   const toPlayer = pathTo(map, start, beside);
   assert.ok(toPlayer && toPlayer.length > 0);
   assert.equal(standsNextTo(toPlayer[toPlayer.length - 1], map.spawns.p), true);
+});
+
+test("the player and guests start on different walkable tiles", () => {
+  const map = parseMap(MAP);
+  const spots = ["p", "a", "n", "c"].map((key) => map.spawns[key]);
+  const keys = spots.map((spot) => `${spot.x},${spot.y}`);
+  assert.equal(new Set(keys).size, spots.length);
+  for (const spot of spots) assert.equal(isSolid(map, spot.x, spot.y), false);
 });
 
 test("chat range is the next tile, not a neighbor two away", () => {

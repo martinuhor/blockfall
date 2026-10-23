@@ -18,11 +18,12 @@ import {
   faceName,
   isSolid,
   parseMap,
+  tileAt,
   pathTo,
   standsNextTo,
 } from "./room-map.js";
 
-const TILE = 16;
+const TILE = 32;
 const MENU = ["Zobo", "Suya", "Chin chin"];
 const STEP_MS = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 110;
 const WALK_MS = STEP_MS === 0 ? 0 : 160;
@@ -33,8 +34,8 @@ const CAST = {
     name: "You",
     guest: false,
     hair: "#24180f",
-    skin: "#d7a15e",
-    shirt: "#e0a84a",
+    skin: "#e0b56a",
+    shirt: "#f0b429",
     pants: "#3a2a22",
     shoe: "#1a120e",
     hairStyle: "short",
@@ -44,8 +45,8 @@ const CAST = {
     name: "Ada",
     guest: true,
     hair: "#1a120e",
-    skin: "#8d5524",
-    shirt: "#3e7c6f",
+    skin: "#a86b38",
+    shirt: "#1f9d8a",
     pants: "#241810",
     shoe: "#120e0c",
     hairStyle: "long",
@@ -55,8 +56,8 @@ const CAST = {
     name: "Ngozi",
     guest: true,
     hair: "#4a2c18",
-    skin: "#6f4428",
-    shirt: "#8c3d55",
+    skin: "#8a4b2f",
+    shirt: "#e25b86",
     pants: "#2a2030",
     shoe: "#120e0c",
     hairStyle: "bun",
@@ -66,8 +67,8 @@ const CAST = {
     name: "Chidi",
     guest: true,
     hair: "#111111",
-    skin: "#4a2912",
-    shirt: "#3d5a80",
+    skin: "#6b3a22",
+    shirt: "#3c7dd6",
     pants: "#1c2430",
     shoe: "#0e0c0a",
     hairStyle: "short",
@@ -77,8 +78,8 @@ const CAST = {
     name: "Seyi",
     guest: true,
     hair: "#2a1c12",
-    skin: "#c68642",
-    shirt: "#c46b3a",
+    skin: "#d09a58",
+    shirt: "#e07a3d",
     pants: "#2c2418",
     shoe: "#14100c",
     hairStyle: "cap",
@@ -113,8 +114,11 @@ const map = parseMap(MAP);
 const canvas = document.querySelector("#room-canvas");
 
 function boot(canvasEl) {
+  canvasEl.width = map.width * TILE;
+  canvasEl.height = map.height * TILE;
   const ctx = canvasEl.getContext("2d");
   const tags = document.querySelector("#tags");
+  const bubbles = document.querySelector("#bubbles");
   const chatEl = document.querySelector("#chat");
   const chatName = document.querySelector("#chat-name");
   const logEl = document.querySelector("#log");
@@ -128,11 +132,11 @@ function boot(canvasEl) {
   const greeted = new Set();
   const replyCount = { ngozi: 0, chidi: 0 };
   const tagEls = new Map();
+  const bubbleEls = new Map();
   let memoryBand = null;
   let askInFlight = false;
   let active = null;
   let runner = null;
-  let playerAnim = null;
 
   const guests = Object.entries(SPAWN_ID).map(([key, id]) => {
     const spot = map.spawns[key];
@@ -172,7 +176,13 @@ function boot(canvasEl) {
     const text = input.value.trim();
     if (!text || !active) return;
     input.value = "";
+    const passTo = otherGuestNamed(text, active.id);
     void chat.send(text, { from: "you", to: active.id });
+    if (passTo) {
+      void chat.send(`I'll walk that over to ${CAST[passTo].name}.`, { from: active.id, to: "you" });
+      beginCarry(active, text, passTo);
+      return;
+    }
     if (chat.local) localReply(active.id, text);
   });
 
@@ -181,14 +191,19 @@ function boot(canvasEl) {
   }
 
   refreshChat();
+  paint();
   let last = performance.now();
   requestAnimationFrame(function frame(now) {
     const dt = Math.min(48, now - last);
     last = now;
-    stepPlayer(now);
-    stepRunner(dt);
-    draw(ctx);
-    syncTags();
+    try {
+      stepPlayer(now);
+      stepGuests(now, dt);
+      stepRunner(dt);
+    } catch (error) {
+      console.error(error);
+    }
+    paint();
     requestAnimationFrame(frame);
   });
 
@@ -420,38 +435,200 @@ function boot(canvasEl) {
   }
 
   function tryStep(dx, dy) {
-    if (playerAnim) return;
-    player.face = faceName(dx, dy);
+    if (player.anim) return;
     const nx = player.x + dx;
     const ny = player.y + dy;
-    if (isSolid(map, nx, ny) || occupied(nx, ny)) return;
+    if (isSolid(map, nx, ny) || occupied(nx, ny, player.id)) return;
+    startMove(player, nx, ny, STEP_MS);
     if (STEP_MS === 0) {
-      player.x = nx;
-      player.y = ny;
-      player.drawX = nx;
-      player.drawY = ny;
-      player.frame = player.frame ? 0 : 1;
       retargetRunner();
       refreshChat();
-      return;
     }
-    playerAnim = { x: player.x, y: player.y, nx, ny, start: performance.now() };
   }
 
   function stepPlayer(now) {
-    if (!playerAnim) return;
-    const u = Math.min(1, (now - playerAnim.start) / Math.max(STEP_MS, 1));
-    player.drawX = playerAnim.x + (playerAnim.nx - playerAnim.x) * u;
-    player.drawY = playerAnim.y + (playerAnim.ny - playerAnim.y) * u;
-    player.frame = u < 1 ? 1 : 0;
-    if (u < 1) return;
-    player.x = playerAnim.nx;
-    player.y = playerAnim.ny;
-    player.drawX = player.x;
-    player.drawY = player.y;
-    playerAnim = null;
+    if (!player.anim) {
+      if (STEP_MS !== 0) player.frame = Math.floor(now / 480) % 2;
+      return;
+    }
+    if (tickMove(player, now)) return;
     retargetRunner();
     refreshChat();
+  }
+
+  function stepGuests(now, dt) {
+    stepCouriers(now, dt);
+    for (const guest of guests) {
+      if (guest.courier) continue;
+      if (guest.anim) {
+        if (!tickMove(guest, now)) refreshChat();
+        continue;
+      }
+      if (guest.id === "ada") {
+        if (STEP_MS !== 0) guest.frame = Math.floor(now / 480 + 1) % 2;
+        continue;
+      }
+      if (standsNextTo(player, guest)) {
+        guest.nextWander = now + 700;
+        if (STEP_MS !== 0) guest.frame = Math.floor(now / 480 + guest.x) % 2;
+        continue;
+      }
+      if (now < guest.nextWander) {
+        if (STEP_MS !== 0) guest.frame = Math.floor(now / 480 + guest.x) % 2;
+        continue;
+      }
+      guest.nextWander = now + 1100 + Math.random() * 1600;
+      const options = approachTiles(map, guest, (x, y) => tileAt(map, x, y) !== "." || occupied(x, y, guest.id));
+      if (!options.length) continue;
+      const next = options[Math.floor(Math.random() * options.length)];
+      startMove(guest, next.x, next.y, STEP_MS);
+    }
+  }
+
+  function beginCarry(guest, text, toId) {
+    if (!guest || guest.courier) return;
+    guest.anim = null;
+    guest.drawX = guest.x;
+    guest.drawY = guest.y;
+    const recipient = guests.find((person) => person.id === toId);
+    if (!recipient) return;
+    const home = { x: guest.x, y: guest.y };
+    guest.carrying = true;
+    if (standsNextTo(guest, recipient)) {
+      guest.courier = { text, toId, phase: "deliver", path: [], home, wait: STEP_MS === 0 ? 0 : 1100, goal: { x: guest.x, y: guest.y } };
+      guest.face = faceToward(guest, recipient);
+      void chat.send(text, { from: guest.id, to: toId });
+      setStatus(`${guest.name} is beside ${recipient.name} with that message.`);
+      if (STEP_MS === 0) startReturn(guest);
+      return;
+    }
+    const goal = nearestApproach(guest, recipient);
+    if (!goal) {
+      guest.carrying = false;
+      void chat.send("I can't get through. The way is blocked.", { from: guest.id, to: "you" });
+      return;
+    }
+    const path = pathTo(map, guest, goal, (x, y) => occupied(x, y, guest.id) && !(x === goal.x && y === goal.y));
+    if (!path) {
+      guest.carrying = false;
+      void chat.send("I can't get through. The way is blocked.", { from: guest.id, to: "you" });
+      return;
+    }
+    guest.courier = {
+      text,
+      toId,
+      phase: path.length ? "walk" : "deliver",
+      path,
+      home,
+      wait: STEP_MS === 0 ? 0 : 1100,
+      goal,
+    };
+    guest.anim = null;
+    setStatus(`${guest.name} is walking that message to ${CAST[toId].name}.`);
+    if (!path.length) {
+      guest.courier.phase = "deliver";
+      void chat.send(text, { from: guest.id, to: toId });
+      if (STEP_MS === 0) startReturn(guest);
+    }
+  }
+
+  function nearestApproach(from, target) {
+    const tiles = approachTiles(map, target, (x, y) => tileAt(map, x, y) !== "." || occupied(x, y, from.id));
+    let best = null;
+    let bestLen = Infinity;
+    for (const tile of tiles) {
+      const path = pathTo(map, from, tile, (x, y) => occupied(x, y, from.id) && !(x === tile.x && y === tile.y));
+      if (!path) continue;
+      if (path.length < bestLen) {
+        best = tile;
+        bestLen = path.length;
+      }
+    }
+    return best;
+  }
+
+  function startReturn(guest) {
+    const job = guest.courier;
+    if (!job) return;
+    guest.carrying = false;
+    if (guest.x === job.home.x && guest.y === job.home.y) {
+      finishCarry(guest);
+      return;
+    }
+    const homeFree = tileAt(map, job.home.x, job.home.y) === "." && !occupied(job.home.x, job.home.y, guest.id);
+    if (!homeFree) {
+      finishCarry(guest);
+      return;
+    }
+    const path = pathTo(map, guest, job.home, (x, y) => occupied(x, y, guest.id) && !(x === job.home.x && y === job.home.y));
+    if (!path) {
+      finishCarry(guest);
+      return;
+    }
+    job.phase = "return";
+    job.path = path;
+    job.goal = job.home;
+    if (!path.length) finishCarry(guest);
+  }
+
+  function finishCarry(guest) {
+    guest.courier = null;
+    guest.carrying = false;
+    guest.anim = null;
+  }
+
+  function stepCouriers(now, dt) {
+    for (const guest of guests) {
+      const job = guest.courier;
+      if (!job) continue;
+      if (guest.anim) {
+        if (!tickMove(guest, now)) refreshChat();
+        continue;
+      }
+      if (job.phase === "deliver") {
+        const recipient = guests.find((person) => person.id === job.toId);
+        if (recipient) guest.face = faceToward(guest, recipient);
+        job.wait -= dt;
+        if (job.wait <= 0) startReturn(guest);
+        continue;
+      }
+      if (job.phase !== "walk" && job.phase !== "return") continue;
+      const next = job.path.shift();
+      if (!next) {
+        if (job.phase === "walk") {
+          job.phase = "deliver";
+          job.wait = STEP_MS === 0 ? 0 : 1100;
+          const recipient = guests.find((person) => person.id === job.toId);
+          if (recipient) guest.face = faceToward(guest, recipient);
+          void chat.send(job.text, { from: guest.id, to: job.toId });
+          setStatus(`${guest.name} handed that message to ${CAST[job.toId].name}.`);
+          if (job.wait === 0) startReturn(guest);
+        } else {
+          finishCarry(guest);
+        }
+        continue;
+      }
+      if (occupied(next.x, next.y, guest.id)) {
+        if (job.phase !== "walk") {
+          finishCarry(guest);
+          continue;
+        }
+        const recipient = guests.find((person) => person.id === job.toId);
+        const goal = recipient ? nearestApproach(guest, recipient) : null;
+        const path = goal
+          ? pathTo(map, guest, goal, (x, y) => occupied(x, y, guest.id) && !(x === goal.x && y === goal.y))
+          : null;
+        if (!goal || !path) {
+          void chat.send("I can't get through. The way is blocked.", { from: guest.id, to: "you" });
+          finishCarry(guest);
+          continue;
+        }
+        job.goal = goal;
+        job.path = path;
+        continue;
+      }
+      startMove(guest, next.x, next.y, STEP_MS);
+    }
   }
 
   function refreshChat() {
@@ -507,14 +684,20 @@ function boot(canvasEl) {
     return beside.find((guest) => guest.x === player.x + fx && guest.y === player.y + fy) || beside[0];
   }
 
-  function guestAt(x, y) {
-    return guests.some((guest) => guest.x === x && guest.y === y);
+  function bodyAt(person, x, y) {
+    if (!person) return false;
+    if (person.x === x && person.y === y) return true;
+    return Boolean(person.anim && person.anim.nx === x && person.anim.ny === y);
   }
 
-  function occupied(x, y) {
-    if (guestAt(x, y)) return true;
-    if (player.x === x && player.y === y) return true;
-    if (runner && runner.phase !== "leave" && runner.x === x && runner.y === y) return true;
+  function guestAt(x, y) {
+    return guests.some((guest) => bodyAt(guest, x, y));
+  }
+
+  function occupied(x, y, ignoreId) {
+    if (guests.some((guest) => guest.id !== ignoreId && bodyAt(guest, x, y))) return true;
+    if (player.id !== ignoreId && bodyAt(player, x, y)) return true;
+    if (runner && runner.id !== ignoreId && runner.phase !== "leave" && bodyAt(runner, x, y)) return true;
     return false;
   }
 
@@ -565,14 +748,74 @@ function boot(canvasEl) {
       }
       const x = person.drawX ?? person.x;
       const y = person.drawY ?? person.y;
-      const labelY = person.guest ? y : y + 0.95;
       el.style.left = `${((x + 0.5) / map.width) * 100}%`;
-      el.style.top = `${(labelY / map.height) * 100}%`;
+      el.style.top = `${(y / map.height) * 100}%`;
     }
+  }
+
+  function syncBubbles() {
+    if (!bubbles) return;
+    const specs = [];
+    if (active) {
+      const last = [...messages].reverse().find((message) => message.from === active.id || message.to === active.id);
+      specs.push({
+        key: `talk-${active.id}`,
+        person: active,
+        text: last ? clipLine(last.text) : HELLO[active.id],
+      });
+    }
+    for (const guest of guests) {
+      const job = guest.courier;
+      if (!job) continue;
+      if (job.phase === "deliver") {
+        const recipient = guests.find((person) => person.id === job.toId);
+        if (!recipient) continue;
+        specs.push({
+          key: `drop-${guest.id}`,
+          person: recipient,
+          text: clipLine(`${guest.name}: ${job.text}`),
+        });
+      } else if (job.phase === "walk") {
+        specs.push({
+          key: `carry-${guest.id}`,
+          person: guest,
+          text: clipLine(`For ${CAST[job.toId].name}: ${job.text}`),
+        });
+      }
+    }
+    const keep = new Set();
+    for (const spec of specs) {
+      keep.add(spec.key);
+      let el = bubbleEls.get(spec.key);
+      if (!el) {
+        el = document.createElement("p");
+        el.className = "bubble";
+        bubbles.append(el);
+        bubbleEls.set(spec.key, el);
+      }
+      el.textContent = spec.text;
+      const x = spec.person.drawX ?? spec.person.x;
+      const y = spec.person.drawY ?? spec.person.y;
+      el.style.left = `${((x + 0.5) / map.width) * 100}%`;
+      el.style.top = `${(y / map.height) * 100}%`;
+    }
+    for (const [key, el] of bubbleEls) {
+      if (keep.has(key)) continue;
+      el.remove();
+      bubbleEls.delete(key);
+    }
+  }
+
+  function paint() {
+    draw(ctx);
+    syncTags();
+    syncBubbles();
   }
 
   function draw(context) {
     context.imageSmoothingEnabled = false;
+    context.fillStyle = "#e7d3b0";
+    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
     for (let y = 0; y < map.height; y++) {
       for (let x = 0; x < map.width; x++) drawTile(context, map.tiles[y * map.width + x], x, y);
     }
@@ -600,7 +843,51 @@ function actor(cast, x, y, face) {
     face,
     frame: 0,
     carrying: false,
+    courier: null,
+    anim: null,
+    nextWander: performance.now() + 900 + x * 220,
   };
+}
+
+function clipLine(text) {
+  const line = String(text).replace(/\s+/g, " ").trim();
+  return line.length > 110 ? `${line.slice(0, 107)}...` : line;
+}
+
+function otherGuestNamed(text, exceptId) {
+  const lower = String(text).toLowerCase();
+  return ["ada", "ngozi", "chidi"].find((id) => id !== exceptId && new RegExp(`\\b${id}\\b`).test(lower)) || null;
+}
+
+function startMove(person, nx, ny, dur) {
+  person.face = faceName(nx - person.x, ny - person.y);
+  if (dur <= 0) {
+    person.x = nx;
+    person.y = ny;
+    person.drawX = nx;
+    person.drawY = ny;
+    person.frame = person.frame ? 0 : 1;
+    person.anim = null;
+    return;
+  }
+  person.anim = { x: person.x, y: person.y, nx, ny, start: performance.now(), dur };
+  person.frame = 1;
+}
+
+function tickMove(person, now) {
+  const anim = person.anim;
+  if (!anim) return false;
+  const u = Math.min(1, (now - anim.start) / Math.max(anim.dur, 1));
+  person.drawX = anim.x + (anim.nx - anim.x) * u;
+  person.drawY = anim.y + (anim.ny - anim.y) * u;
+  person.frame = u < 0.5 ? 1 : 0;
+  if (u < 1) return true;
+  person.x = anim.nx;
+  person.y = anim.ny;
+  person.drawX = person.x;
+  person.drawY = person.y;
+  person.anim = null;
+  return false;
 }
 
 function bindHold(button, step) {
@@ -628,103 +915,150 @@ function drawTile(ctx, tile, x, y) {
   const px = x * TILE;
   const py = y * TILE;
   if (tile === "#") {
-    ctx.fillStyle = "#221820";
+    ctx.fillStyle = "#6d5648";
     ctx.fillRect(px, py, TILE, TILE);
-    ctx.fillStyle = "#4a342c";
-    ctx.fillRect(px, py, TILE, 3);
-    ctx.fillStyle = "#120c10";
-    ctx.fillRect(px + 2, py + 7, TILE - 4, 2);
+    ctx.fillStyle = "#3e2e28";
+    ctx.fillRect(px, py + 15, TILE, 2);
+    const seam = (y % 2) * 16;
+    ctx.fillRect(px + seam, py, 2, 15);
+    ctx.fillRect(px + ((seam + 16) % 32), py + 17, 2, 15);
+    ctx.fillStyle = "#b89a86";
+    ctx.fillRect(px + 4, py + 3, TILE - 8, 5);
+    ctx.fillStyle = "#8b6d5c";
+    ctx.fillRect(px + 4, py + 19, TILE - 8, 4);
     return;
   }
-  ctx.fillStyle = (x + y) % 2 === 0 ? "#34261f" : "#3c2c23";
+  const light = (x + y) % 2 === 0;
+  ctx.fillStyle = "#7a5a3a";
   ctx.fillRect(px, py, TILE, TILE);
-  ctx.fillStyle = "rgba(0,0,0,0.18)";
-  ctx.fillRect(px, py + TILE - 1, TILE, 1);
+  ctx.fillStyle = light ? "#f4e3c6" : "#e2c79a";
+  ctx.fillRect(px + 2, py + 2, TILE - 3, TILE - 3);
+  ctx.fillStyle = light ? "#d7b88a" : "#c9a36e";
+  ctx.fillRect(px + 6, py + 6, 5, 5);
+  if ((x * 3 + y) % 5 === 0) {
+    ctx.fillStyle = "#c48a55";
+    ctx.fillRect(px + 20, py + 18, 4, 4);
+  }
   if (tile === "d") {
-    ctx.fillStyle = "#d9c7a6";
+    ctx.fillStyle = "#6d5648";
     ctx.fillRect(px, py, TILE, TILE);
-    ctx.fillStyle = "#07060a";
-    ctx.fillRect(px + 3, py + 3, TILE - 6, TILE - 3);
+    ctx.fillStyle = "#f7edd8";
+    ctx.fillRect(px + 5, py, TILE - 10, TILE);
+    ctx.fillStyle = "#3b2418";
+    ctx.fillRect(px + 8, py + 3, TILE - 16, TILE - 3);
     ctx.fillStyle = "#e0a84a";
-    ctx.fillRect(px + 6, py + 7, 4, 4);
+    ctx.fillRect(px + 20, py + 16, 4, 4);
+    ctx.fillStyle = "#f7edd8";
+    ctx.fillRect(px + 5, py, TILE - 10, 4);
+    return;
   }
   const below = y + 1 < map.height ? map.tiles[(y + 1) * map.width + x] : "";
   if (tile === "." && below === "d") {
-    ctx.fillStyle = "#6b4632";
-    ctx.fillRect(px + 3, py + 11, TILE - 6, 4);
+    ctx.fillStyle = "#8d3d32";
+    ctx.fillRect(px + 6, py + 22, TILE - 12, 6);
+    ctx.fillStyle = "#c46b5a";
+    ctx.fillRect(px + 8, py + 23, TILE - 16, 3);
   } else if (tile === "C") {
-    ctx.fillStyle = "#6b4632";
-    ctx.fillRect(px + 1, py + 2, TILE - 2, TILE - 3);
-    ctx.fillStyle = "#8d5b3c";
-    ctx.fillRect(px + 2, py + 3, TILE - 4, 3);
+    ctx.fillStyle = "#8d5a32";
+    ctx.fillRect(px + 2, py + 8, TILE - 4, TILE - 12);
+    ctx.fillStyle = "#e0a15a";
+    ctx.fillRect(px + 2, py + 4, TILE - 4, 8);
+    ctx.fillStyle = "#f6e2bc";
+    ctx.fillRect(px + 6, py + 6, TILE - 12, 3);
   } else if (tile === "T") {
-    ctx.fillStyle = "#5a3b2a";
-    ctx.fillRect(px + 1, py + 2, TILE - 2, TILE - 4);
+    ctx.fillStyle = "#6b442c";
+    ctx.fillRect(px + 7, py + 20, 4, 8);
+    ctx.fillRect(px + TILE - 11, py + 20, 4, 8);
+    ctx.fillStyle = "#f0ddb4";
+    ctx.fillRect(px + 3, py + 8, TILE - 6, 14);
     ctx.fillStyle = "#c4a574";
-    ctx.fillRect(px + 4, py + 5, TILE - 8, TILE - 10);
+    ctx.fillRect(px + 3, py + 8, TILE - 6, 3);
   } else if (tile === "*") {
-    ctx.fillStyle = "#3e2a22";
-    ctx.fillRect(px + 5, py + 10, 6, 4);
-    ctx.fillStyle = "#2f6b45";
-    ctx.fillRect(px + 3, py + 4, 4, 6);
-    ctx.fillRect(px + 9, py + 5, 4, 5);
-    ctx.fillStyle = "#3e7c6f";
-    ctx.fillRect(px + 6, py + 2, 4, 5);
+    ctx.fillStyle = "#c47a3a";
+    ctx.fillRect(px + 11, py + 20, 10, 8);
+    ctx.fillStyle = "#8d4e28";
+    ctx.fillRect(px + 13, py + 18, 6, 3);
+    ctx.fillStyle = "#1f7a3a";
+    ctx.fillRect(px + 6, py + 12, 9, 8);
+    ctx.fillStyle = "#3cb56a";
+    ctx.fillRect(px + 15, py + 10, 10, 8);
+    ctx.fillStyle = "#145c32";
+    ctx.fillRect(px + 10, py + 4, 8, 8);
   }
 }
 
 function drawPerson(ctx, person) {
   const ox = Math.round(person.drawX * TILE);
   const oy = Math.round(person.drawY * TILE);
-  const bob = person.frame ? 1 : 0;
-  ctx.fillStyle = "rgba(0,0,0,0.35)";
-  ctx.fillRect(ox + 4, oy + 13, 8, 2);
-  const px = (x, y, color, w = 1, h = 1) => {
+  const bob = person.frame ? -2 : 0;
+  const lift = person.frame ? 2 : 0;
+  const y0 = oy + bob;
+  const ink = "#2a160c";
+  const box = (x, y, w, h, color) => {
     ctx.fillStyle = color;
-    ctx.fillRect(ox + x, oy + y, w, h);
+    ctx.fillRect(ox + x, y0 + y, w, h);
   };
-  px(5, 4, person.skin, 6, 5);
-  if (person.hairStyle === "long") {
-    px(4, 3, person.hair, 8, 6);
-    px(5, 5, person.skin, 6, 3);
-  } else if (person.hairStyle === "bun") {
-    px(6, 1, person.hair, 4, 2);
-    px(4, 3, person.hair, 8, 3);
-  } else if (person.hairStyle === "cap") {
-    px(4, 2, person.shirt, 8, 2);
-    px(5, 4, person.hair, 6, 2);
-  } else {
-    px(4, 2, person.hair, 8, 3);
-  }
-  px(4, 9, person.shirt, 8, 3);
-  px(3, 9, person.shirt, 1, 3);
-  px(12, 9, person.shirt, 1, 3);
-  px(5, 12, person.pants, 6, 1);
-  const foot = bob ? 1 : 0;
+  ctx.fillStyle = "rgba(42, 22, 12, 0.28)";
+  ctx.fillRect(ox + 8, oy + 26, 16, 4);
+  box(8, 5, 16, 20, ink);
   if (person.face === "left") {
-    px(4, 13, person.shoe, 2, 2);
-    px(8, 13 - foot, person.shoe, 2, 2);
+    box(9, 21, 5, 4, person.pants);
+    box(16, 21 - lift, 5, 4, person.pants);
+    box(9, 24, 5, 3, person.shoe);
+    box(16, 24 - lift, 5, 3, person.shoe);
   } else if (person.face === "right") {
-    px(6, 13 - foot, person.shoe, 2, 2);
-    px(10, 13, person.shoe, 2, 2);
+    box(11, 21 - lift, 5, 4, person.pants);
+    box(18, 21, 5, 4, person.pants);
+    box(11, 24 - lift, 5, 3, person.shoe);
+    box(18, 24, 5, 3, person.shoe);
   } else {
-    px(5, 13, person.shoe, 2, 2);
-    px(9, 13 - foot, person.shoe, 2, 2);
+    box(10, 21, 5, 4, person.pants);
+    box(17, 21, 5, 4, person.pants);
+    box(10, 24 - (person.face === "up" ? 0 : lift), 5, 3, person.shoe);
+    box(17, 24, 5, 3, person.shoe);
+  }
+  box(8, 13, 16, 9, person.shirt);
+  box(6, 14, 3, 6, person.shirt);
+  box(23, 14, 3, 6, person.shirt);
+  box(8, 20, 16, 2, ink);
+  box(9, 6, 14, 8, person.skin);
+  if (person.hairStyle === "long") {
+    box(8, 4, 16, 6, person.hair);
+    box(8, 10, 3, 8, person.hair);
+    box(21, 10, 3, 8, person.hair);
+    box(11, 8, 10, 5, person.skin);
+  } else if (person.hairStyle === "bun") {
+    box(12, 1, 8, 4, person.hair);
+    box(8, 4, 16, 4, person.hair);
+  } else if (person.hairStyle === "cap") {
+    box(8, 3, 16, 4, "#f0d7a2");
+    box(7, 6, 18, 2, "#f0d7a2");
+    box(10, 7, 12, 2, person.hair);
+  } else {
+    box(8, 4, 16, 4, person.hair);
   }
   if (person.face === "down") {
-    px(6, 6, "#1a120e", 1, 1);
-    px(9, 6, "#1a120e", 1, 1);
+    box(12, 9, 2, 2, ink);
+    box(18, 9, 2, 2, ink);
+    box(15, 12, 2, 1, "#8d3d32");
   } else if (person.face === "left") {
-    px(5, 6, "#1a120e", 1, 1);
-    px(6, 7, person.skin, 1, 1);
+    box(11, 9, 2, 2, ink);
+    box(10, 12, 3, 1, "#8d3d32");
   } else if (person.face === "right") {
-    px(10, 6, "#1a120e", 1, 1);
+    box(19, 9, 2, 2, ink);
+    box(19, 12, 3, 1, "#8d3d32");
   } else {
-    px(4, 3, person.hair, 8, 4);
+    box(8, 5, 16, 7, person.hair);
   }
   if (person.carrying) {
-    px(12, 10, "#e0a84a", 3, 3);
-    px(13, 9, "#d9c7a6", 1, 1);
+    if (person.courier) {
+      box(22, 15, 8, 7, "#fff8ea");
+      box(23, 17, 6, 1, ink);
+      box(23, 19, 4, 1, ink);
+    } else {
+      box(22, 16, 7, 6, "#e0a84a");
+      box(24, 15, 3, 2, "#fff8ea");
+    }
   }
 }
 
