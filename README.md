@@ -38,3 +38,8 @@ python3 -m http.server 5173 --directory dist
 - Output directory: `dist`
 
 No Ruby runs when someone opens the site. The deck talks about a possible sponsor-funded airtime prize and an NLRC permit before any prize is paid. That is not legal advice, and this product does not pay prizes.
+
+
+## DEMO SITE 
+
+: https://blockfall-1fx.pages.dev/
