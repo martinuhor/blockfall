@@ -61,14 +61,35 @@ header p,
 header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
+}
+
+.mast {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
 }
 
 header a {
   color: var(--amber);
   font-weight: 700;
   text-decoration: none;
+}
+
+header a.home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: var(--amber);
+  color: #2a160c;
+  text-decoration: none;
+  text-shadow: none;
 }
 
 header p {
