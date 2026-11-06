@@ -75,16 +75,16 @@
               <button type="button" class="mute splash-mute" id="splash-mute">Mute</button>
             </div>
             <h1 class="wordmark">Blockfall</h1>
-            <canvas id="splash-token" width="168" height="168" aria-hidden="true">A spinning token.</canvas>
+            <div class="token-stage">
+              <canvas id="splash-token" width="168" height="168" aria-hidden="true">A spinning token.</canvas>
+            </div>
             <p class="tag">Daily skill. Same tiles for everyone.</p>
           </div>
           <div class="dock">
             <button type="button" class="primary" id="open-play">Play</button>
-            <nav class="dock-links" aria-label="More">
-              <a href="ost.html">Soundtrack</a>
-              <button type="button" id="merch-btn">Merch</button>
-              <a href="room.html">Room</a>
-            </nav>
+            <a class="menu-btn" href="ost.html">Soundtrack</a>
+            <button type="button" class="menu-btn" id="merch-btn">Merch Store</button>
+            <a class="menu-btn" href="room.html">Room</a>
             <p class="sponsor" id="splash-sponsor"></p>
           </div>
           <section id="leaderboard" class="board" aria-label="Today's board">
@@ -232,7 +232,7 @@
     </dialog>
 
     <audio id="ost" preload="none"></audio>
-    <script type="module" src="js/game.js?v=fix1"></script>
-    <script type="module" src="js/merch.js?v=fix1"></script>
+    <script type="module" src="js/game.js?v=arcade1"></script>
+    <script type="module" src="js/merch.js?v=arcade1"></script>
   </body>
 </html>
