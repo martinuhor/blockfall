@@ -911,4 +911,25 @@ canvas#board {
   #app { gap: 8px; }
   .splash-shell { gap: 14px; min-height: 0; }
   .board { padding: 12px; }
+  .hero { min-height: 160px; padding: 4px 0; }
+}
+
+@media (min-width: 720px) {
+  #app {
+    max-width: 430px;
+    height: min(920px, calc(100dvh - 48px));
+    max-height: min(920px, calc(100dvh - 48px));
+    margin: 24px auto;
+    border: 1px solid var(--line);
+    border-radius: 32px;
+    background:
+      linear-gradient(180deg, rgba(28, 20, 24, 0.72), rgba(10, 8, 12, 0.88));
+    backdrop-filter: blur(18px);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  }
+
+  .dock-links a,
+  .dock-links a:visited {
+    color: var(--sand);
+  }
 }
