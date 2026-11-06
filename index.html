@@ -182,21 +182,19 @@
 
         <section id="controls" class="console-deck" aria-label="Controls">
           <div class="cluster cluster-dpad">
-            <button type="button" class="pad pad-ghost" tabindex="-1" aria-hidden="true" disabled></button>
-            <button type="button" class="pad" data-action="C" title="Turn">Turn</button>
-            <button type="button" class="pad pad-ghost" tabindex="-1" aria-hidden="true" disabled></button>
-            <button type="button" class="pad" data-action="L" title="Left">Left</button>
+            <button type="button" class="pad pad-up" data-action="C" title="Turn">Turn</button>
+            <button type="button" class="pad pad-left" data-action="L" title="Left">Left</button>
             <button type="button" class="pad pad-hub" tabindex="-1" aria-hidden="true" disabled></button>
-            <button type="button" class="pad" data-action="R" title="Right">Right</button>
+            <button type="button" class="pad pad-right" data-action="R" title="Right">Right</button>
           </div>
-          <div class="cluster cluster-sys">
-            <span class="sys-pill">Select</span>
-            <span class="sys-pill">Start</span>
+          <div class="cluster cluster-sys" aria-hidden="true">
+            <span class="sys-pill"></span>
+            <span class="sys-pill"></span>
           </div>
           <div class="cluster cluster-face">
             <button type="button" class="pad face-b" data-action="C" title="Turn">B</button>
             <button type="button" class="pad face-a drop" data-action="H" title="Drop">A</button>
-            <p class="face-legend"><span>Turn</span><span>Drop</span></p>
+            <p class="face-legend"><span>B Turn</span><span>A Drop</span></p>
           </div>
         </section>
       </main>
@@ -262,7 +260,7 @@
     </dialog>
 
     <audio id="ost" preload="none"></audio>
-    <script type="module" src="js/game.js?v=snes1"></script>
-    <script type="module" src="js/merch.js?v=snes1"></script>
+    <script type="module" src="js/game.js?v=snes2"></script>
+    <script type="module" src="js/merch.js?v=snes2"></script>
   </body>
 </html>
