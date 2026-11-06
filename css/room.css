@@ -1,14 +1,16 @@
 :root {
   color-scheme: dark;
-  --bg: #140e18;
-  --ink: #f4ecdf;
-  --muted: #b7a394;
-  --sand: #d9c7a6;
-  --amber: #e0a84a;
-  --amber-ink: #2a160c;
-  --panel: #241820;
-  --line: rgba(217, 199, 166, 0.16);
-  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  --bg: #0c090c;
+  --ink: #f7f0e4;
+  --muted: #a89484;
+  --sand: #e0d0b4;
+  --amber: #e8b45a;
+  --amber-ink: #24150c;
+  --panel: #1c1419;
+  --line: rgba(224, 208, 180, 0.16);
+  --font-display: "Fraunces", Palatino, Georgia, serif;
+  --font-ui: "Sora", "Avenir Next", "Segoe UI", sans-serif;
+  font-family: var(--font-ui);
 }
 
 * { box-sizing: border-box; }
@@ -58,7 +60,7 @@ a {
 h1,
 h2 {
   margin: 0;
-  font-family: Palatino, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 600;
 }
 

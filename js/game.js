@@ -33,11 +33,13 @@ const els = {
   status: document.querySelector("#status"),
   stats: document.querySelector("#stats"),
   top: document.querySelector("#top"),
+  soundbar: document.querySelector(".soundbar"),
   stage,
   splash: document.querySelector("#splash"),
   splashDate: document.querySelector("#splash-date"),
   mark: document.querySelector("#splash-token"),
   splashSponsor: document.querySelector("#splash-sponsor"),
+  splashMute: document.querySelector("#splash-mute"),
   openPlay: document.querySelector("#open-play"),
   sheet: document.querySelector("#start-sheet"),
   sponsor: document.querySelector("#sponsor-line"),
@@ -127,8 +129,13 @@ const music = createMusic(document.querySelector("#ost"), (track) => {
 
 function paintMute() {
   const label = music.isMuted() ? "Unmute" : "Mute";
+  const pressed = music.isMuted() ? "true" : "false";
   els.mute.textContent = label;
-  els.mute.setAttribute("aria-pressed", music.isMuted() ? "true" : "false");
+  els.mute.setAttribute("aria-pressed", pressed);
+  if (els.splashMute) {
+    els.splashMute.textContent = label;
+    els.splashMute.setAttribute("aria-pressed", pressed);
+  }
 }
 
 function dailyKey() {
@@ -279,6 +286,7 @@ function setScreen(next) {
   els.pause.hidden = !pausing;
   els.result.hidden = !result;
   els.top.hidden = splash || start;
+  if (els.soundbar) els.soundbar.hidden = splash || start;
   els.stage.hidden = !(play || pausing);
   els.stats.hidden = !(play || pausing);
   els.status.hidden = splash || start;
@@ -707,10 +715,12 @@ els.openPlay.addEventListener("click", () => {
   music.start();
   showStart();
 });
-els.mute.addEventListener("click", () => {
+function onMuteClick() {
   music.toggleMute();
   paintMute();
-});
+}
+els.mute.addEventListener("click", onMuteClick);
+els.splashMute?.addEventListener("click", onMuteClick);
 els.playPractice.addEventListener("click", () => {
   track("play_practice");
   begin("practice");
