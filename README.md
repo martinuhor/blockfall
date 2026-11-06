@@ -1,45 +1,74 @@
 # Blockfall
 
-Blockfall is a free falling-tiles game for a phone. One ranked run each Lagos day uses the same tile order. Practice is separate. The vessel, the five tiles, and the receipt are the game. This build does not pay airtime or cash.
+Personal portfolio web project: an **original** falling-tiles game for phones in Nigeria. One free ranked run each Lagos day (same tile order for everyone). Practice is separate. Soundtrack, a local multiplayer-style room, and Paystack merch sit beside the game.
 
-## Play locally
+**Live demo:** [https://blockfall-1fx.pages.dev/](https://blockfall-1fx.pages.dev/)
 
-From the project folder:
+This build does **not** pay airtime or cash. Prize talk on the pitch page is not a live payout system.
+
+## Why this stack
+
+| Choice | Reason |
+| --- | --- |
+| Vanilla ES modules + canvas | Fast phone load, no SPA tax, easy to audit |
+| Deterministic engine + receipts | Server can replay a run; ranks are not trust-me scores |
+| Cloudflare Pages + Functions | Static hosting + edge checkout/webhooks without a always-on server |
+| Paystack (not Stripe) | Nigeria-native cards / transfers / USSD |
+| Printful after webhook | POD only when payment cleared |
+
+Longer notes: [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+## Quick start
 
 ```bash
-python3 -m http.server 5173
-```
-
-Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). Add it to the home screen from the browser. The module script needs a local server; opening the file directly will not run.
-
-```bash
+npm install
+npm start          # http://127.0.0.1:5173/
 npm test
+npm run lint
+npm run build      # writes dist/ for Pages
+npm run check      # test + lint + build
 ```
 
-`node js/replay.js receipt.json` checks a saved run. The score it checks is the score before any sponsor bonus.
+`node js/replay.js receipt.json` checks a saved run (score before any sponsor bonus).
 
-## Pitch page
+## Product surfaces
 
-The deck is a second static page. Ruby runs only when you build. The site Cloudflare serves is HTML, CSS, and JS.
-
-```bash
-ruby build.rb
-```
-
-That writes `dist/`. The game is `dist/index.html`. The deck is `dist/deck.html`.
-
-```bash
-python3 -m http.server 5173 --directory dist
-```
+| Path | What it is |
+| --- | --- |
+| `/` | Splash, play, today's verified board, merch modal |
+| `/ost.html` | Silent Parker soundtrack player |
+| `/room.html` | Top-down room (local chat until a real bitchat client is plugged in) |
+| `/about.html` | Portfolio / design constraints |
+| `/studio.html` | Private event counters (key required) |
+| `/deck.html` | Pitch page from ERB at build time |
 
 ## Cloudflare Pages
 
-- Build command: `ruby build.rb`
-- Output directory: `dist`
+- **Build command:** `npm run build` (or `ruby build.rb`)
+- **Output directory:** `dist`
+- **Functions:** `functions/` (checked in next to the site; not copied into `dist`)
 
-No Ruby runs when someone opens the site. The deck talks about a possible sponsor-funded airtime prize and an NLRC permit before any prize is paid. That is not legal advice, and this product does not pay prizes.
+### Secrets & bindings
 
+Copy `.env.example`. Set Production env vars in the Pages project:
 
-## DEMO SITE 
+**Merch:** `PAYSTACK_SECRET_KEY`, `POD_API_KEY`, `POD_VARIANT_ID_{S,M,L,XL}`, `MERCH_UNIT_AMOUNT` (kobo), `MERCH_CURRENCY=NGN`
 
-: https://blockfall-1fx.pages.dev/
+**Board / analytics:** bind a KV namespace as `LEADERBOARD_KV` (and optionally `STATS_KV`). Set `STATS_VIEW_KEY` for `/studio`.
+
+**Paystack webhook URL:** `https://blockfall-1fx.pages.dev/api/paystack-webhook` · event `charge.success`
+
+Without secrets, checkout returns **503** with a clear JSON error. Without KV, the board still works in a single-isolate preview memory store and reports `durable: false`.
+
+## Pitch page
+
+```bash
+ruby build.rb
+python3 -m http.server 5173 --directory dist
+```
+
+The deck mentions a possible sponsor-funded airtime prize and an NLRC permit before any prize is paid. That is not legal advice.
+
+## License / credit
+
+Game design and code for portfolio demonstration. Silent Parker tracks are used with the artist’s involvement on this project; do not redistribute the audio outside this product without permission.

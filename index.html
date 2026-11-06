@@ -8,10 +8,25 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Blockfall" />
-    <title>Blockfall</title>
+    <title>Blockfall — daily skill tiles</title>
     <meta
       name="description"
-      content="Blockfall is a falling-tiles game. One free daily run, the same tile order for everyone."
+      content="Blockfall is an original falling-tiles game for Nigeria. One free Lagos-day run, the same tile order for everyone, with soundtrack, room, and Paystack merch."
+    />
+    <link rel="canonical" href="https://blockfall-1fx.pages.dev/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Blockfall" />
+    <meta
+      property="og:description"
+      content="Original falling-tiles. One free daily run. Same tiles for everyone in Lagos time."
+    />
+    <meta property="og:url" content="https://blockfall-1fx.pages.dev/" />
+    <meta property="og:image" content="https://blockfall-1fx.pages.dev/merch/front.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Blockfall" />
+    <meta
+      name="twitter:description"
+      content="Original falling-tiles. One free daily run. Same tiles for everyone."
     />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="css/game.css" />
@@ -56,8 +71,25 @@
         <div class="dock">
           <button type="button" class="primary" id="open-play">Play</button>
           <a class="soundtrack" href="ost.html">Soundtrack</a>
+          <button type="button" class="merch" id="merch-btn">Merch Store</button>
+          <a class="soundtrack" href="room.html">Room</a>
           <p class="sponsor" id="splash-sponsor"></p>
         </div>
+        <section id="leaderboard" class="board" aria-label="Today's board">
+          <div class="board-head">
+            <h2>Today's board</h2>
+            <label class="board-handle-label">
+              Handle
+              <input data-board-handle maxlength="16" autocomplete="username" placeholder="you" aria-label="Leaderboard handle" />
+            </label>
+          </div>
+          <p class="board-meta" data-board-meta>Lagos day ranks after a verified daily run.</p>
+          <ol class="board-list" data-board-list></ol>
+        </section>
+        <p class="portfolio-note">
+          Personal web project — original engine, Cloudflare Pages, Paystack + Printful.
+          <a href="about.html">About</a>
+        </p>
       </section>
 
       <section id="start-sheet" hidden>
@@ -139,7 +171,53 @@
       </div>
     </section>
 
+    <dialog id="merch-dialog" aria-labelledby="merch-title">
+      <form id="merch-form">
+        <header class="merch-head">
+          <p class="eyebrow">Print on demand</p>
+          <h2 id="merch-title">Blockfall tee</h2>
+          <button type="button" class="merch-x" data-merch-close aria-label="Close">Close</button>
+        </header>
+        <div class="merch-shots" aria-hidden="true">
+          <img src="merch/front.svg" alt="" width="180" height="210" />
+          <img src="merch/back.svg" alt="" width="180" height="210" />
+        </div>
+        <p class="merch-copy">Clay ink on cotton. Ships in Nigeria after Paystack clears.</p>
+        <p class="merch-price">₦15,000</p>
+        <label>
+          Size
+          <select name="size" required>
+            <option value="S">S</option>
+            <option value="M" selected>M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+          </select>
+        </label>
+        <label>
+          Colour
+          <select name="color" required>
+            <option value="sand" selected>Sand</option>
+            <option value="ink">Ink</option>
+            <option value="amber">Amber</option>
+          </select>
+        </label>
+        <label>Email <input name="email" type="email" autocomplete="email" required /></label>
+        <label>Full name <input name="name" type="text" autocomplete="name" required /></label>
+        <label>Phone <input name="phone" type="tel" autocomplete="tel" required /></label>
+        <label>Street <input name="address1" type="text" autocomplete="street-address" required /></label>
+        <label>City <input name="city" type="text" autocomplete="address-level2" required /></label>
+        <label>State <input name="state" type="text" autocomplete="address-level1" required /></label>
+        <label>Postcode <input name="zip" type="text" autocomplete="postal-code" required /></label>
+        <p id="merch-status" class="merch-status" role="status"></p>
+        <div class="merch-actions">
+          <button type="button" class="ghost" data-merch-close>Cancel</button>
+          <button type="submit" class="primary" id="merch-buy">Buy with Paystack</button>
+        </div>
+      </form>
+    </dialog>
+
     <audio id="ost" preload="none"></audio>
     <script type="module" src="js/game.js"></script>
+    <script type="module" src="js/merch.js"></script>
   </body>
 </html>

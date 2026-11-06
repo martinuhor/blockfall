@@ -10,6 +10,8 @@ import {
 import { createRenderer, DEFAULT_EMOJIS } from "./draw.js";
 import { createAds } from "./ads.js";
 import { createMusic, trackLine, ARTIST } from "./music.js";
+import { track } from "./analytics.js";
+import { loadHandle, saveHandle, submitReceipt, mountLeaderboard } from "./leaderboard.js";
 
 const TICK_MS = 50;
 const REPEAT_EVERY = 4;
@@ -431,7 +433,7 @@ function persistOpen() {
   });
 }
 
-function finish() {
+async function finish() {
   if (!state) return;
   const hash = boardHash(state);
   const check = verifyRun(seed, inputs, state.tick, state.score, state.bands, hash);
@@ -444,6 +446,17 @@ function finish() {
   shownPoints = receipt.points;
   renderHud();
   showResult(receipt);
+  track("run_finish", { mode, ok: check.ok, score: receipt.score });
+
+  if (mode === "daily" && check.ok) {
+    const handle = loadHandle() || "player";
+    try {
+      await submitReceipt(receipt, handle);
+      boardUi.refresh();
+    } catch {
+      /* local receipt still stands if the board is offline */
+    }
+  }
 }
 
 function begin(nextMode) {
@@ -698,8 +711,22 @@ els.mute.addEventListener("click", () => {
   music.toggleMute();
   paintMute();
 });
-els.playPractice.addEventListener("click", () => begin("practice"));
-els.playDaily.addEventListener("click", () => begin("daily"));
+els.playPractice.addEventListener("click", () => {
+  track("play_practice");
+  begin("practice");
+});
+els.playDaily.addEventListener("click", () => {
+  track("play_daily");
+  begin("daily");
+});
+
+const boardUi = mountLeaderboard(document.querySelector("#leaderboard"));
+const handleField = document.querySelector("[data-board-handle]");
+handleField?.addEventListener("change", () => {
+  saveHandle(String(handleField.value || "").trim().toLowerCase());
+});
+boardUi.refresh();
+track("splash_view");
 els.again.addEventListener("click", () => showStart());
 els.other.addEventListener("click", () => begin("daily"));
 els.home.addEventListener("click", () => showSplash());

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /studio
+Disallow: /studio.html
+Disallow: /api/
+
+Sitemap: https://blockfall-1fx.pages.dev/sitemap.xml

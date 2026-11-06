@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "cursor/**"]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
+      - name: Dist sanity
+        run: |
+          test -f dist/index.html
+          test -f dist/ost.html
+          test -f dist/room.html
+          test -f dist/about.html
+          test -f dist/_headers
+          test -f dist/js/engine.js
+          test -f dist/merch/front.svg

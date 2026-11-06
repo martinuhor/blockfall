@@ -1,4 +1,5 @@
 import { ARTIST, PLAYLIST, loadOrder, saveOrder, trackLine } from "./music.js";
+import { track as trackEvent } from "./analytics.js";
 
 const audio = document.querySelector("#player");
 const title = document.querySelector("#title");
@@ -118,6 +119,7 @@ function move(from, to) {
 
 function play() {
   if (!audio.getAttribute("src")) cue(pos, false);
+  trackEvent("ost_play");
   const pending = audio.play();
   if (pending) pending.catch(() => {});
 }

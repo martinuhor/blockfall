@@ -2,9 +2,20 @@
   "name": "blockfall",
   "private": true,
   "type": "module",
+  "description": "Original daily-skill falling-tiles game for Nigeria — portfolio web project.",
   "scripts": {
-    "test": "node --test",
     "start": "python3 -m http.server 5173",
-    "build": "ruby build.rb"
+    "build": "ruby build.rb",
+    "test": "node --test",
+    "lint": "eslint js functions test",
+    "check": "npm test && npm run lint && npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "eslint": "^9.15.0",
+    "globals": "^15.12.0"
   }
 }

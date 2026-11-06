@@ -17,12 +17,19 @@ end
 
 FileUtils.rm_rf(dist)
 FileUtils.mkdir_p(dist)
-FileUtils.cp(File.join(root, "index.html"), File.join(dist, "index.html"))
-FileUtils.cp(File.join(root, "ost.html"), File.join(dist, "ost.html"))
+
+%w[index.html ost.html room.html about.html studio.html 404.html robots.txt sitemap.xml _headers _redirects manifest.webmanifest].each do |name|
+  src = File.join(root, name)
+  FileUtils.cp(src, File.join(dist, name)) if File.file?(src)
+end
+
 FileUtils.cp_r(File.join(root, "css"), File.join(dist, "css"))
 FileUtils.cp_r(File.join(root, "js"), File.join(dist, "js"))
-FileUtils.cp(File.join(root, "manifest.webmanifest"), File.join(dist, "manifest.webmanifest"))
 FileUtils.cp_r(File.join(root, "audio"), dist)
+
+merch_dir = File.join(root, "merch")
+FileUtils.cp_r(merch_dir, File.join(dist, "merch")) if File.directory?(merch_dir)
+
 video_dir = File.join(root, "video")
 FileUtils.mkdir_p(File.join(dist, "video"))
 Dir.glob(File.join(video_dir, "*.mp4")).each do |file|

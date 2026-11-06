@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#140e18" />
+    <title>About — Blockfall</title>
+    <meta
+      name="description"
+      content="Blockfall is a personal portfolio web project: an original daily-skill tile game for Nigeria, built as static Pages plus edge Functions."
+    />
+    <link rel="stylesheet" href="css/game.css" />
+    <style>
+      .about {
+        max-width: 40rem;
+        margin: 0 auto;
+        padding: 24px 16px max(32px, env(safe-area-inset-bottom));
+        overflow: auto;
+        height: 100dvh;
+      }
+      .about h1 {
+        font-family: Palatino, Georgia, serif;
+        font-size: clamp(1.8rem, 5vw, 2.4rem);
+        margin: 8px 0 12px;
+      }
+      .about p,
+      .about li {
+        color: var(--sand);
+        line-height: 1.55;
+      }
+      .about a {
+        color: var(--amber);
+      }
+      .about ul {
+        padding-left: 1.1rem;
+      }
+      .about .mast {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .about .mast a.home {
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 0 14px;
+        border-radius: 12px;
+        background: var(--amber);
+        color: var(--amber-ink);
+        font-weight: 700;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="about">
+      <div class="mast">
+        <a class="home" href="./">Home</a>
+        <a href="./">Blockfall</a>
+      </div>
+      <p class="eyebrow">Portfolio project</p>
+      <h1>About this build</h1>
+      <p>
+        Blockfall is a personal web engineering project: an original falling-tiles game (not a Tetris clone),
+        shipped as a phone-first static site on Cloudflare Pages with optional edge Functions for a Lagos-day
+        leaderboard, privacy-light analytics, and Nigeria checkout via Paystack → Printful.
+      </p>
+      <p>Design constraints that drove the code:</p>
+      <ul>
+        <li>One ranked run per Lagos calendar day; practice is separate.</li>
+        <li>Deterministic tile bags so a receipt can be replayed and verified.</li>
+        <li>No secret keys in the browser. Commerce and webhooks stay on the edge.</li>
+        <li>Ads and prizes are stubs or pitch-only until legal and ops are real.</li>
+      </ul>
+      <p>
+        Stack: vanilla ES modules, canvas renderer, Node’s built-in test runner, Ruby only at build time for the
+        pitch deck. See <a href="https://github.com/martinuhor/blockfall">GitHub</a> and
+        <a href="./deck.html">the pitch page</a>.
+      </p>
+      <p class="fine">This build does not pay airtime or cash.</p>
+    </article>
+  </body>
+</html>

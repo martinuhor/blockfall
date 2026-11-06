@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 420" role="img" aria-label="Blockfall tee front mockup">
+  <rect width="360" height="420" fill="#1b141a"/>
+  <path d="M90 70h180l28 36v250H62V106z" fill="#2c1e24" stroke="#d9c7a6" stroke-opacity=".35"/>
+  <path d="M90 70l-28 36h28zm180 0l28 36h-28z" fill="#241820" stroke="#d9c7a6" stroke-opacity=".35"/>
+  <circle cx="180" cy="190" r="42" fill="none" stroke="#e0a84a" stroke-width="6"/>
+  <text x="180" y="276" text-anchor="middle" fill="#f4ecdf" font-family="Georgia, serif" font-size="28">Blockfall</text>
+  <text x="180" y="304" text-anchor="middle" fill="#b7a394" font-family="Avenir Next, sans-serif" font-size="12" letter-spacing="2">FRONT</text>
+</svg>

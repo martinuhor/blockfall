@@ -3,3 +3,6 @@ node_modules/
 dist/
 .cursor/
 .wrangler/
+.env
+.env.local
+.env.*.local
