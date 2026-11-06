@@ -1,14 +1,14 @@
 :root {
   color-scheme: dark;
-  --bg: #0c090c;
-  --ink: #f7f0e4;
-  --muted: #a89484;
-  --sand: #e0d0b4;
-  --amber: #e8b45a;
-  --amber-ink: #24150c;
-  --panel: #1c1419;
-  --line: rgba(224, 208, 180, 0.16);
-  --font-display: "Fraunces", Palatino, Georgia, serif;
+  --bg: #050805;
+  --ink: #f4fff6;
+  --muted: #8aa892;
+  --sand: #c8e6c9;
+  --amber: #00ff41;
+  --amber-ink: #041208;
+  --panel: #0d140f;
+  --line: rgba(0, 255, 65, 0.22);
+  --font-display: "Nunito", "Avenir Next", sans-serif;
   --font-ui: "Sora", "Avenir Next", "Segoe UI", sans-serif;
   font-family: var(--font-ui);
 }
@@ -20,7 +20,7 @@ body {
   margin: 0;
   min-height: 100%;
   background:
-    radial-gradient(ellipse at 50% -20%, #3c261c 0%, transparent 52%),
+    radial-gradient(ellipse at 50% -20%, rgba(0, 255, 65, 0.16) 0%, transparent 52%),
     var(--bg);
   color: var(--ink);
 }
@@ -44,10 +44,10 @@ a.home {
   justify-content: center;
   min-height: 40px;
   padding: 0 14px;
-  border-radius: 12px;
+  border-radius: 999px;
   background: var(--amber);
   color: var(--amber-ink);
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
 }
 

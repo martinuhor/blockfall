@@ -1,13 +1,13 @@
 :root {
   color-scheme: dark;
-  --bg: #0c090c;
-  --ink: #f7f0e4;
-  --muted: #a89484;
-  --sand: #e0d0b4;
-  --amber: #e8b45a;
-  --line: rgba(224, 208, 180, 0.16);
-  --font-display: "Fraunces", Palatino, Georgia, serif;
-  --font-ui: "Sora", "Avenir Next", "Segoe UI", sans-serif;
+  --bg: #050805;
+  --ink: #f4fff6;
+  --muted: #8aa892;
+  --sand: #c8e6c9;
+  --amber: #00ff41;
+  --line: rgba(0, 255, 65, 0.22);
+  --font-display: "Nunito", "Avenir Next", sans-serif;
+  --font-ui: "Sora", "Avenir Next", sans-serif;
   font-family: var(--font-ui);
 }
 
@@ -17,7 +17,9 @@ body {
   margin: 0;
   min-height: 100dvh;
   color: var(--ink);
-  background: #050505;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 255, 65, 0.14), transparent 55%),
+    #050805;
 }
 
 .canvas {
@@ -47,9 +49,11 @@ main {
   max-width: 720px;
   margin: min(42vh, 520px) auto 0;
   padding: 18px 16px max(20px, env(safe-area-inset-bottom));
-  border-radius: 18px 18px 0 0;
+  border-radius: 28px 28px 0 0;
   background:
-    linear-gradient(to bottom, rgba(18, 14, 20, 0.35), rgba(18, 14, 20, 0.94) 42px, #120e14 96px);
+    linear-gradient(to bottom, rgba(8, 16, 10, 0.35), rgba(8, 16, 10, 0.94) 42px, #0a120c 96px);
+  border: 2px solid var(--line);
+  border-bottom: 0;
 }
 
 h1,
@@ -76,7 +80,7 @@ header {
 
 header a {
   color: var(--amber);
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
 }
 
@@ -87,9 +91,9 @@ header a.home {
   flex: 0 0 auto;
   min-height: 44px;
   padding: 0 16px;
-  border-radius: 12px;
+  border-radius: 999px;
   background: var(--amber);
-  color: #2a160c;
+  color: #041208;
   text-decoration: none;
   text-shadow: none;
 }
@@ -104,7 +108,7 @@ h1 {
   margin: 18px 0 4px;
   font-family: var(--font-display);
   font-size: clamp(1.6rem, 4vw, 2.4rem);
-  font-weight: 600;
+  font-weight: 900;
   line-height: 1.15;
 }
 
@@ -151,16 +155,16 @@ button,
 #mute {
   min-width: 72px;
   padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #241820;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: #0d140f;
   color: var(--sand);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 #play {
   background: var(--amber);
-  color: #2a160c;
+  color: #041208;
   border-color: transparent;
 }
 
@@ -186,29 +190,29 @@ li {
   gap: 6px;
   align-items: center;
   padding: 6px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: #1b141a;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  background: #0d140f;
 }
 
-li.current { border-color: rgba(224, 168, 74, 0.7); }
+li.current { border-color: rgba(0, 255, 65, 0.7); }
 
 .pick,
 .nudge {
   min-height: 44px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   background: transparent;
   color: var(--ink);
   text-align: left;
-  font-weight: 650;
+  font-weight: 700;
 }
 
 .nudge {
   min-width: 44px;
   padding: 0 8px;
   color: var(--sand);
-  background: #2c1e24;
+  background: #152018;
 }
 
 li.drag { opacity: 0.45; }
