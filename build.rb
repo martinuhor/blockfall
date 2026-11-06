@@ -18,7 +18,7 @@ end
 FileUtils.rm_rf(dist)
 FileUtils.mkdir_p(dist)
 
-%w[index.html ost.html room.html about.html studio.html 404.html robots.txt sitemap.xml _headers _redirects manifest.webmanifest].each do |name|
+%w[index.html ost.html room.html about.html studio.html 404.html robots.txt sitemap.xml _headers manifest.webmanifest].each do |name|
   src = File.join(root, name)
   FileUtils.cp(src, File.join(dist, name)) if File.file?(src)
 end

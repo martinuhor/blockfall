@@ -20,7 +20,10 @@ export function saveHandle(handle) {
 }
 
 export async function fetchBoard(date = lagosDateKey()) {
-  const response = await fetch(`/api/leaderboard?date=${encodeURIComponent(date)}`);
+  const response = await fetch(`/api/leaderboard?date=${encodeURIComponent(date)}`, {
+    method: "GET",
+    headers: { accept: "application/json" },
+  });
   if (!response.ok) throw new Error("board unavailable");
   return response.json();
 }
