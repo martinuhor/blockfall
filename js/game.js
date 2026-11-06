@@ -290,11 +290,14 @@ function setScreen(next) {
   els.stage.hidden = !(play || pausing);
   els.stats.hidden = !(play || pausing);
   els.status.hidden = splash || start;
-  els.controls.hidden = !play;
+  // Deck stays mounted like a console wrapper; CSS dims it off-play.
+  els.controls.hidden = false;
   els.stop.hidden = !play;
-  els.mode.hidden = play;
-  if (start) els.mode.textContent = "Ready";
-  else if (pausing) els.mode.textContent = "Paused";
+  els.mode.hidden = false;
+  if (play) els.mode.textContent = mode === "daily" ? "Daily" : "Practice";
+  else if (splash) els.mode.textContent = "Title";
+  else if (start) els.mode.textContent = "Ready";
+  if (pausing) els.mode.textContent = "Paused";
   else if (result) els.mode.textContent = mode === "daily" ? "Daily" : "Practice";
   document.body.dataset.screen = next;
 }
@@ -752,8 +755,9 @@ els.stop.addEventListener("click", () => stopRun());
 
 for (const pad of pads) {
   const action = pad.dataset.action;
+  if (!action) continue;
   pad.addEventListener("pointerdown", (event) => {
-    if (!playing || paused) return;
+    if (!playing || paused || pad.disabled) return;
     try {
       pad.setPointerCapture(event.pointerId);
     } catch {
