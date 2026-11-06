@@ -77,9 +77,7 @@ export function mountLeaderboard(root) {
 
   function paint(data) {
     if (meta) {
-      meta.textContent = data.durable
-        ? `Lagos ${data.date} · shared board`
-        : `Lagos ${data.date} · preview board (bind LEADERBOARD_KV for durable ranks)`;
+      meta.textContent = `Lagos ${data.date} · today's ranks`;
     }
     if (!list) return;
     list.replaceChildren();

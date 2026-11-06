@@ -54,11 +54,11 @@ Copy `.env.example`. Set Production env vars in the Pages project:
 
 **Merch:** `PAYSTACK_SECRET_KEY`, `POD_API_KEY`, `POD_VARIANT_ID_{S,M,L,XL}`, `MERCH_UNIT_AMOUNT` (kobo), `MERCH_CURRENCY=NGN`
 
-**Board / analytics:** bind a KV namespace as `LEADERBOARD_KV` (and optionally `STATS_KV`). Set `STATS_VIEW_KEY` for `/studio`.
+**Board / analytics:** the daily board persists via the Cache API with no binding required. Optionally bind a KV namespace as `LEADERBOARD_KV` for stronger durability. Set `STATS_VIEW_KEY` for `/studio`.
 
 **Paystack webhook URL:** `https://blockfall-1fx.pages.dev/api/paystack-webhook` · event `charge.success`
 
-Without secrets, checkout returns **503** with a clear JSON error. Without KV, the board still works in a single-isolate preview memory store and reports `durable: false`.
+Without Paystack/Printful secrets, checkout returns **503** with a clear JSON error. The game, room, soundtrack, and board still work.
 
 ## Pitch page
 

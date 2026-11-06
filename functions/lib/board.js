@@ -1,9 +1,16 @@
-/** Daily leaderboard helpers. KV is optional; memory store is for local wrangler only. */
+/** Daily leaderboard helpers.
+ * Prefer LEADERBOARD_KV when bound; otherwise Cloudflare Cache API
+ * (no dashboard binding required). Memory is last-resort for local tests.
+ */
 
 const memory = new Map();
 
 export function todayKey(dateKey) {
   return `daily:${dateKey}`;
+}
+
+export function cacheRequest(dateKey) {
+  return new Request(`https://blockfall-board.internal/daily/${encodeURIComponent(dateKey)}`);
 }
 
 export function sanitizeHandle(raw) {
@@ -34,12 +41,45 @@ export function rankEntries(entries) {
     }));
 }
 
+async function readCache(dateKey) {
+  try {
+    if (typeof caches === "undefined" || !caches.default) return null;
+    const hit = await caches.default.match(cacheRequest(dateKey));
+    if (!hit) return null;
+    const raw = await hit.json();
+    return Array.isArray(raw) ? raw : null;
+  } catch {
+    return null;
+  }
+}
+
+async function writeCache(dateKey, entries) {
+  try {
+    if (typeof caches === "undefined" || !caches.default) return false;
+    const body = JSON.stringify(entries);
+    await caches.default.put(
+      cacheRequest(dateKey),
+      new Response(body, {
+        headers: {
+          "content-type": "application/json; charset=utf-8",
+          "cache-control": "public, max-age=1209600",
+        },
+      }),
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function readBoard(kv, dateKey) {
   const key = todayKey(dateKey);
   if (kv) {
     const raw = await kv.get(key, "json");
     return Array.isArray(raw) ? raw : [];
   }
+  const cached = await readCache(dateKey);
+  if (cached) return cached;
   return memory.get(key) || [];
 }
 
@@ -48,10 +88,11 @@ export async function writeBoard(kv, dateKey, entries) {
   const next = rankEntries(entries);
   if (kv) {
     await kv.put(key, JSON.stringify(next), { expirationTtl: 60 * 60 * 24 * 14 });
-  } else {
-    memory.set(key, next);
+    return { entries: next, durable: true, store: "kv" };
   }
-  return next;
+  const cached = await writeCache(dateKey, next);
+  memory.set(key, next);
+  return { entries: next, durable: cached, store: cached ? "cache" : "memory" };
 }
 
 export function upsertEntry(entries, next) {

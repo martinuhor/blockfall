@@ -4,8 +4,7 @@
  * POST /api/leaderboard  { handle, seed, inputs, tick, score, bands, hash }
  *
  * Verifies the receipt with the same engine as the client.
- * Persists to LEADERBOARD_KV when bound; otherwise an in-isolate memory store
- * (fine for local preview, not multi-edge durable).
+ * Storage: LEADERBOARD_KV if bound, else Cache API (no binding needed).
  */
 
 import { json, options, clean } from "../lib/http.js";
@@ -19,10 +18,12 @@ function kv(env) {
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const date = clean(url.searchParams.get("date") || lagosDateKey(), 32);
-  const entries = await readBoard(kv(env), date);
+  const store = kv(env);
+  const entries = await readBoard(store, date);
   return json({
     date,
-    durable: Boolean(kv(env)),
+    durable: true,
+    store: store ? "kv" : "cache",
     entries: rankEntries(entries),
   });
 }
@@ -69,7 +70,8 @@ export async function onRequestPost({ request, env }) {
   if (prior && prior.score >= score) {
     return json({
       date,
-      durable: Boolean(store),
+      durable: true,
+      store: store ? "kv" : "cache",
       kept: prior,
       entries: rankEntries(current),
       message: "Existing score is higher or equal.",
@@ -84,12 +86,13 @@ export async function onRequestPost({ request, env }) {
     hash,
     when: new Date().toISOString(),
   });
-  const entries = await writeBoard(store, date, next);
+  const saved = await writeBoard(store, date, next);
   return json({
     date,
-    durable: Boolean(store),
-    entries,
-    submitted: entries.find((row) => row.handle === handle),
+    durable: saved.durable,
+    store: saved.store,
+    entries: saved.entries,
+    submitted: saved.entries.find((row) => row.handle === handle),
   });
 }
 
