@@ -755,16 +755,20 @@ h2 { font-size: 1.45rem; line-height: 1.15; }
 }
 
 .sheet-top {
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-start;
-  margin: 0 0 10px;
+  margin: 0 0 8px;
 }
 
 .sheet-back {
-  min-height: 40px;
-  padding: 0 16px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 2px solid var(--line-strong) !important;
   border-radius: 999px;
-  font-size: 0.82rem;
+  background: rgba(8, 18, 12, 0.85);
+  color: var(--amber-hot);
+  font-size: 0.86rem;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
