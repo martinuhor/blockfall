@@ -13,12 +13,20 @@
       href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Sora:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/ost.css" />
+    <link rel="stylesheet" href="css/ost.css?v=rain1" />
   </head>
   <body>
     <div class="canvas" aria-hidden="true">
-      <video class="on" src="video/sp-scarf.mp4" muted loop playsinline autoplay></video>
-      <video src="video/sp-open.mp4" muted loop playsinline autoplay></video>
+      <video
+        class="on backdrop"
+        src="video/ost-rain-anime.mp4"
+        muted
+        loop
+        playsinline
+        autoplay
+        preload="metadata"
+      ></video>
+      <div class="canvas-veil"></div>
     </div>
     <main>
       <header>
@@ -49,6 +57,6 @@
       <ol id="list" aria-label="Playlist"></ol>
     </main>
     <audio id="player" preload="metadata"></audio>
-    <script type="module" src="js/ost.js"></script>
+    <script type="module" src="js/ost.js?v=rain1"></script>
   </body>
 </html>
