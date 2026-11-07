@@ -48,6 +48,7 @@ const els = {
   controls: document.querySelector("#controls"),
   pause: document.querySelector("#pause"),
   resume: document.querySelector("#resume"),
+  saveLater: document.querySelector("#save-later"),
   endRun: document.querySelector("#end-run"),
   result: document.querySelector("#result"),
   resultKicker: document.querySelector("#result-kicker"),
@@ -142,6 +143,14 @@ function dailyKey() {
   return `blockfall.daily.${lagosDateKey()}`;
 }
 
+function practiceOpenKey() {
+  return "blockfall.practice.open";
+}
+
+function openKey(forMode = mode) {
+  return forMode === "daily" ? dailyKey() : practiceOpenKey();
+}
+
 function readJson(key) {
   try {
     const raw = localStorage.getItem(key);
@@ -183,6 +192,22 @@ function dailyLabel() {
   if (saved && saved.status === "done") return "Today's receipt";
   if (saved && saved.status === "open") return "Continue today's run";
   return "Start today's run";
+}
+
+function practiceLabel() {
+  const saved = readJson(practiceOpenKey());
+  if (saved && saved.status === "open" && saved.seed) return "Continue practice";
+  return "Practice";
+}
+
+function clearOpen(forMode = mode) {
+  if (forMode === "practice") {
+    try {
+      localStorage.removeItem(practiceOpenKey());
+    } catch {
+      /* Storage can refuse; finishing still stands. */
+    }
+  }
 }
 
 function continued(list) {
@@ -330,6 +355,7 @@ function showStart() {
   setPlaying(false);
   setScreen("start");
   els.playDaily.textContent = dailyLabel();
+  els.playPractice.textContent = practiceLabel();
   const line = ads.line();
   els.sponsor.textContent = line;
   els.splashSponsor.textContent = line;
@@ -425,8 +451,8 @@ function receiptFrom(ok) {
 }
 
 function persistOpen() {
-  if (mode !== "daily" || !state || !state.alive) return;
-  writeJson(dailyKey(), {
+  if ((mode !== "daily" && mode !== "practice") || !state || !state.alive) return;
+  writeJson(openKey(), {
     status: "open",
     mode,
     seed,
@@ -448,6 +474,7 @@ async function finish() {
   const receipt = receiptFrom(check.ok);
   if (mode === "daily") receipt.stored = writeJson(dailyKey(), receipt);
   else {
+    clearOpen("practice");
     receipt.stored = writeJson("blockfall.practice.last", receipt);
     rememberBest(receipt.points);
   }
@@ -488,9 +515,16 @@ function begin(nextMode) {
       state = createState(seed);
     }
   } else {
-    seed = `practice-${Date.now().toString(36)}`;
-    inputs = [];
-    state = createState(seed);
+    const saved = readJson(practiceOpenKey());
+    if (saved && saved.status === "open" && saved.seed && Array.isArray(saved.inputs)) {
+      seed = saved.seed;
+      inputs = saved.inputs.slice();
+      state = stateAfter(seed, inputs, saved.tick || 0);
+    } else {
+      seed = `practice-${Date.now().toString(36)}`;
+      inputs = [];
+      state = createState(seed);
+    }
   }
   if (!state.alive) {
     finish();
@@ -505,7 +539,7 @@ function begin(nextMode) {
   renderHud();
   setStatus(mode === "daily" ? "Today's tile order is locked in." : "Practice. This run is not ranked.");
   layout();
-  if (mode === "daily") persistOpen();
+  persistOpen();
 }
 
 function stopRun() {
@@ -515,11 +549,26 @@ function stopRun() {
   acc = 0;
   resetPointers();
   syncPads();
+  persistOpen();
   setScreen("pause");
   music.pause();
-  setStatus("Stopped.");
+  setStatus("Paused. You can resume or save for later.");
   renderHud();
   layout();
+}
+
+function saveForLater() {
+  if (!playing || !state || !state.alive) return;
+  persistOpen();
+  paused = false;
+  setPlaying(false);
+  music.pause();
+  showStart();
+  setStatus(
+    mode === "daily"
+      ? "Today's run is saved on this phone. Continue when you are ready."
+      : "Practice is saved on this phone. Continue when you are ready.",
+  );
 }
 
 function resumeRun() {
@@ -566,7 +615,7 @@ function commitContinue(preview) {
   renderHud();
   setStatus("Continued. Same run.");
   layout();
-  if (mode === "daily") persistOpen();
+  persistOpen();
 }
 
 function applyDouble() {
@@ -681,7 +730,7 @@ function tick() {
     finish();
     return;
   }
-  if (mode === "daily" && (actions.length > 0 || state.tick % 20 === 0)) persistOpen();
+  if (actions.length > 0 || state.tick % 20 === 0) persistOpen();
 }
 
 function frame(now) {
@@ -742,6 +791,7 @@ els.other.addEventListener("click", () => begin("daily"));
 els.home.addEventListener("click", () => showSplash());
 els.resume.addEventListener("click", () => resumeRun());
 els.endRun.addEventListener("click", () => endRun());
+els.saveLater?.addEventListener("click", () => saveForLater());
 els.watchContinue.addEventListener("click", () => onContinue());
 els.watchDouble.addEventListener("click", () => onDouble());
 els.stop.addEventListener("pointerdown", (event) => {
@@ -749,6 +799,13 @@ els.stop.addEventListener("pointerdown", (event) => {
   stopRun();
 });
 els.stop.addEventListener("click", () => stopRun());
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden" && playing && state?.alive) persistOpen();
+});
+window.addEventListener("pagehide", () => {
+  if (playing && state?.alive) persistOpen();
+});
 
 for (const pad of pads) {
   const action = pad.dataset.action;

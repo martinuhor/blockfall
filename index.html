@@ -46,7 +46,7 @@
         </div>
         <div class="header-actions">
           <p class="chip" id="mode">Ready</p>
-          <button type="button" class="stop" id="stop" hidden>Stop</button>
+          <button type="button" class="stop" id="stop" hidden>Pause</button>
         </div>
       </header>
 
@@ -128,7 +128,7 @@
           <ul class="rules">
             <li>The vessel narrows. A tile that does not fit the neck rests on the ledge.</li>
             <li>Fill a band and it bursts. Tiles above can chain.</li>
-            <li>Stop freezes the run. Arrows move, up turns, space drops.</li>
+            <li>Pause freezes the run and can save it for later on this phone. Arrows move, up turns, space drops.</li>
           </ul>
           <p class="sponsor" id="sponsor-line"></p>
           <p class="fine">A receipt stays on this phone. This build does not pay airtime or cash.</p>
@@ -147,11 +147,12 @@
       </section>
 
       <section id="pause" class="panel" hidden>
-        <p class="eyebrow">Stopped</p>
-        <h2>Paused</h2>
-        <p class="lead">The vessel is frozen. Tiles will not fall.</p>
+        <p class="eyebrow">Paused</p>
+        <h2>Take a break</h2>
+        <p class="lead">The vessel is frozen. Resume now, or save on this phone and continue later.</p>
         <div class="actions">
           <button type="button" class="primary" id="resume">Resume</button>
+          <button type="button" class="ghost" id="save-later">Save for later</button>
           <button type="button" class="ghost" id="end-run">End run</button>
         </div>
       </section>
@@ -238,7 +239,7 @@
     </dialog>
 
     <audio id="ost" preload="none"></audio>
-    <script type="module" src="js/game.js?v=viral1"></script>
-    <script type="module" src="js/merch.js?v=viral1"></script>
+    <script type="module" src="js/game.js?v=pause1"></script>
+    <script type="module" src="js/merch.js?v=pause1"></script>
   </body>
 </html>
