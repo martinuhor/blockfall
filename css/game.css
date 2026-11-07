@@ -754,6 +754,22 @@ h2 { font-size: 1.45rem; line-height: 1.15; }
   overscroll-behavior: contain;
 }
 
+.sheet-top {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 0 10px;
+}
+
+.sheet-back {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 #result {
   flex: 1 1 auto;
   min-height: 0;

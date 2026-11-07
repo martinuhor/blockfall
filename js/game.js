@@ -45,6 +45,7 @@ const els = {
   sponsor: document.querySelector("#sponsor-line"),
   playPractice: document.querySelector("#play-practice"),
   playDaily: document.querySelector("#play-daily"),
+  startHome: document.querySelector("#start-home"),
   controls: document.querySelector("#controls"),
   pause: document.querySelector("#pause"),
   resume: document.querySelector("#resume"),
@@ -764,6 +765,7 @@ els.openPlay.addEventListener("click", () => {
   music.start();
   showStart();
 });
+els.startHome?.addEventListener("click", () => showSplash());
 function onMuteClick() {
   music.toggleMute();
   paintMute();
